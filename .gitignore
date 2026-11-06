@@ -18,6 +18,10 @@ innologybd-core-*.tgz
 # Rust / Tauri build output
 **/target/
 
+# Go / native binaries
+*.exe
+v3-go/v3-go
+
 # IDE / OS
 .vscode/
 .idea/
