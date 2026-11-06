@@ -1,6 +1,21 @@
 import { useState } from "react";
 import { getMessage, getProfile } from "@/routes/index";
 
+function Button({ className = "", onClick, children, disabled }: { className?: string; onClick?: () => void; children: React.ReactNode; disabled?: boolean }) {
+  return (
+    <button
+      onClick={onClick}
+      disabled={disabled}
+      className={[
+        "inline-flex items-center justify-center rounded-md border border-input bg-background px-4 py-2 text-sm font-medium ring-offset-background transition-colors hover:bg-accent hover:text-accent-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none disabled:opacity-50",
+        className,
+      ].join(" ")}
+    >
+      {children}
+    </button>
+  );
+}
+
 export default function App() {
   const [message, setMessage] = useState<string>("");
   const [profile, setProfile] = useState<{ name: string; role: string } | null>(null);
@@ -25,22 +40,22 @@ export default function App() {
   };
 
   return (
-    <div style={{ padding: "2rem", fontFamily: "system-ui, sans-serif", maxWidth: "40rem", margin: "0 auto" }}>
-      <h1 style={{ fontSize: "1.5rem", marginBottom: "1rem" }}>{{NAME}}</h1>
-      <div style={{ display: "flex", gap: "0.5rem", marginBottom: "1rem" }}>
-        <button onClick={loadMessage} disabled={!!message || !!error}>
+    <div className="p-8 font-sans max-w-2xl mx-auto">
+      <h1 className="text-2xl font-bold mb-4">{{NAME}}</h1>
+      <div className="flex gap-2 mb-4">
+        <Button onClick={loadMessage} disabled={!!message || !!error}>
           {message ? "Reload Message" : "Load Message"}
-        </button>
-        <button onClick={loadProfile} disabled={!!profile || !!error}>
+        </Button>
+        <Button onClick={loadProfile} disabled={!!profile || !!error} className="bg-accent text-accent-foreground">
           {profile ? "Reload Profile" : "Load Profile"}
-        </button>
+        </Button>
       </div>
-      {error && <p style={{ color: "#dc2626", marginTop: "0.5rem" }}>Error: {error}</p>}
-      {message && <p style={{ marginTop: "0.5rem" }}><strong>Message:</strong> {message}</p>}
+      {error && <p className="text-destructive mt-2">Error: {error}</p>}
+      {message && <p className="mt-2"><strong>Message:</strong> {message}</p>}
       {profile && (
-        <p style={{ marginTop: "0.5rem" }}><strong>Profile:</strong> {profile.name} — {profile.role}</p>
+        <p className="mt-2"><strong>Profile:</strong> {profile.name} — {profile.role}</p>
       )}
-      <p style={{ marginTop: "1rem", fontSize: "0.875rem", color: "#64748b" }}>
+      <p className="mt-4 text-sm text-muted-foreground">
         Calls a typed server function with an auth guard. Unauthenticated requests fail with 401.
       </p>
     </div>

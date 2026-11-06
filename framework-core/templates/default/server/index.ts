@@ -7,11 +7,13 @@
 
 import express from "express";
 import cookieParser from "cookie-parser";
+import { z } from "zod";
 import {
   securityHeaders,
   rpcGuard,
   validateSession,
   authGuard,
+  requireRole,
 } from "@innologybd/core";
 import { makeSession } from "@innologybd/core/auth";
 
@@ -51,6 +53,30 @@ app.post(
   rpcGuard(validateSession, authGuard),
   (_req, res) => {
     res.json({ ok: true, name: "{{NAME}} user", role: "user" });
+  },
+);
+
+/* ---- role-guarded route: admin only ---- */
+app.post(
+  "/rpc/getAdminMessage",
+  rpcGuard(validateSession, requireRole("admin")),
+  (_req, res) => {
+    res.json({ ok: true, text: "Admin-only data." });
+  },
+);
+
+/* ---- validated route: 422 on bad input ---- */
+const InputSchema = z.object({ name: z.string().min(1) });
+app.post(
+  "/rpc/validateInput",
+  rpcGuard(validateSession, authGuard),
+  (req, res) => {
+    const parsed = InputSchema.safeParse(req.body);
+    if (!parsed.success) {
+      res.status(422).json({ error: "Invalid input", issues: parsed.error.issues });
+      return;
+    }
+    res.json({ ok: true, name: parsed.data.name });
   },
 );
 

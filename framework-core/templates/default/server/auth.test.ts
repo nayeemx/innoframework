@@ -6,6 +6,8 @@
  *   - a valid session cookie grants 200 on /rpc/getMessage
  *   - no session → 401
  *   - a tampered session → 401
+ *   - a user session on an admin-only route → 403
+ *   - invalid input on a validated route → 422
  *
  * Requires only Node built-ins (http, child_process) plus the app's
  * devDependencies (tsx, express, cookie-parser).
@@ -31,7 +33,7 @@ const TSX_CLI = path.join(
 
 let server: ChildProcess | null = null;
 
-function request(method: string, url: string, headers: Record<string, string> = {}): Promise<{ status: number; body: string; headers: http.IncomingHttpHeaders }> {
+function request(method: string, url: string, headers: Record<string, string> = {}, body?: string): Promise<{ status: number; body: string; headers: http.IncomingHttpHeaders }> {
   return new Promise((resolve, reject) => {
     const u = new URL(url);
     const opts = {
@@ -47,6 +49,7 @@ function request(method: string, url: string, headers: Record<string, string> = 
       res.on("end", () => resolve({ status: res.statusCode ?? 0, body: data, headers: res.headers }));
     });
     req.on("error", reject);
+    if (body) req.write(body);
     req.end();
   });
 }
@@ -108,5 +111,38 @@ describe("runtime auth — /rpc/* guard", () => {
       Cookie: "v1_session=tampered.token",
     });
     expect(res.status).toBe(401);
+  });
+
+  it("rejects a user session on an admin-only route with 403", async () => {
+    const login = await request("POST", `${BASE}/login`);
+    const cookie = login.headers["set-cookie"] ?? "";
+    const setCookie = Array.isArray(cookie) ? cookie[0] : cookie;
+    const res = await request("POST", `${BASE}/rpc/getAdminMessage`, {
+      Cookie: setCookie.split(";")[0],
+    });
+    expect(res.status).toBe(403);
+  });
+
+  it("rejects invalid input on a validated route with 422", async () => {
+    const login = await request("POST", `${BASE}/login`);
+    const cookie = login.headers["set-cookie"] ?? "";
+    const setCookie = Array.isArray(cookie) ? cookie[0] : cookie;
+    const res = await request("POST", `${BASE}/rpc/validateInput`, {
+      Cookie: setCookie.split(";")[0],
+      "Content-Type": "application/json",
+    }, JSON.stringify({}));
+    expect(res.status).toBe(422);
+  });
+
+  it("accepts valid input on a validated route with 200", async () => {
+    const login = await request("POST", `${BASE}/login`);
+    const cookie = login.headers["set-cookie"] ?? "";
+    const setCookie = Array.isArray(cookie) ? cookie[0] : cookie;
+    const res = await request("POST", `${BASE}/rpc/validateInput`, {
+      Cookie: setCookie.split(";")[0],
+      "Content-Type": "application/json",
+    }, JSON.stringify({ name: "alice" }));
+    expect(res.status).toBe(200);
+    expect(res.body).toContain("alice");
   });
 });
