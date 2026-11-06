@@ -27,7 +27,7 @@
     }
   },
   "bin": {
-    "create-innology-app": "./dist/create-v1-app.js"
+    "create-innology-app": "dist/create-v1-app.js"
   },
   "files": ["dist", "templates", "README.md", "logo.png"],
   "scripts": {
