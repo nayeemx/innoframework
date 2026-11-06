@@ -1,0 +1,96 @@
+# REQUIREMENTS.yaml — framework-research baseline
+# Generated from framework-research / framework-core package, scaffolder, and
+# security checklists (SECURITY_CHECKLIST_V1.md, SECURITY_CHECKLIST_V2.md).
+
+project: framework-research
+package: @innologybd/core
+version: "1.0.0"
+
+requirements:
+  - id: PKG-1
+    name: Publishable npm package
+    kind: functional
+    description: >
+      @innologybd/core ships as an installable npm package exposing typed server
+      functions, signed auth guards, CSP presets, and a build-time secret check.
+      The tarball contains dist/, templates/, README.md, logo.png, and the
+      create-innology-app bin entry.
+    satisfies: [SEC-BUILD-4]
+
+  - id: PKG-2
+    name: Scaffolder creates a v1 app
+    kind: functional
+    description: >
+      `create-innology-app <name>` copies the default template, substitutes
+      {{NAME}}, and generates package.json, tsconfig, vite config, vitest
+      config, an Express server with guarded /rpc/* routes, and a typed client
+      stub.
+    satisfies: []
+
+  - id: PKG-3
+    name: Test files excluded from dist
+    kind: functional
+    description: >
+      `*.test.ts` files are compiled only under tsconfig.json (dev) and excluded
+      from tsconfig.build.json so no test artifacts ship in the published tarball.
+    satisfies: [SEC-BUILD-4]
+
+  - id: AUTH-1
+    name: HMAC-signed session tokens
+    kind: security
+    description: >
+      Tokens are `<base64url(payload)>.<base64url(hmac-sha256(payload, secret))>`.
+      Verification uses `timingSafeEqual` (constant-time) and rejects expired
+      sessions. `SESSION_SECRET` is required in production.
+    satisfies: [AUTH-1, SEC-BUILD-4]
+
+  - id: AUTH-2
+    name: Auth guard fail-closed
+    kind: security
+    description: >
+      `authGuard` throws 401 when no session is present; `requireRole(role)` throws
+      401 then 403 on missing or wrong role. Every /rpc/* route wraps
+      `rpcGuard(validateSession, authGuard)`.
+    satisfies: [AUTH-2]
+
+  - id: AUTH-3
+    name: Rejection of forged/tampered/expired/malformed tokens
+    kind: security
+    description: >
+      `validateSession` returns null for unsigned, tampered, wrong-key-signed,
+      expired, undefined, and malformed tokens.
+    satisfies: [AUTH-3]
+
+  - id: CSP-1
+    name: Strict default CSP header
+    kind: security
+    description: >
+      `Content-Security-Policy` set on every response; no unsafe-inline,
+      no unsafe-eval, object-src 'none', frame-ancestors 'none', base-uri 'self',
+      form-action 'self', plus X-Frame-Options DENY, X-Content-Type-Options
+      nosniff, Referrer-Policy, HSTS.
+    satisfies: [CSP-1]
+
+  - id: SEC-BUILD-4
+    name: Build-time secret check
+    kind: security
+    description: >
+      `node dist/check-secrets.js <clientDir>` fails the build if
+      `process.env.SERVER_*`, `import.meta.env.SERVER_*`, `SECRET_*`, `PRIVATE_*`,
+      `DATABASE_URL`, or `JWT_SECRET` appear in client source. No runtime warning.
+    satisfies: [SEC-BUILD-4]
+
+  - id: RPC-1
+    name: Typed server functions
+    kind: functional
+    description: >
+      `createServerFn<Input,Output>(name, defaultInput)` produces a client stub
+      that POSTs to /rpc/<name>, forwards the v1_session cookie, and parses the
+      typed JSON response.
+    satisfies: []
+
+acceptance:
+  - npm run build emits dist/ without *.test.* files.
+  - npm test passes (17 tests: auth 10, csp 4, create-v1-app 3).
+  - npm run verify:pack passes (templates ships, bin present, no leaks).
+  - npm run check:secrets passes on generated client source.

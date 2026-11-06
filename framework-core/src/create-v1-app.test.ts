@@ -22,6 +22,7 @@ describe("create-v1-app scaffolder", () => {
       "vitest.config.ts",
       "index.html",
       "server/index.ts",
+      "server/auth.test.ts",
       "scripts/check-secrets.js",
       "src/main.tsx",
       "src/App.tsx",
