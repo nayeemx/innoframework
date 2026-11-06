@@ -89,8 +89,53 @@ requirements:
       typed JSON response.
     satisfies: []
 
+  - id: MOB-1
+    name: WebView-based mobile shell
+    kind: functional
+    description: >
+      `v5-mobile/` ships a WebView-based mobile shell component (`MobileShell`)
+      that hosts the framework web app inside an iframe/WebView, with
+      instrumentation for cold-start and frame-time measurement.
+    satisfies: []
+
+  - id: MOB-2
+    name: Cold-start budget
+    kind: functional
+    description: >
+      Cold-start time (shell mount to WebView load) must be < 1500 ms on target
+      devices. Measured by `v5-mobile/src/benchmarks/cold-start.test.tsx`.
+    satisfies: [MOB-1]
+
+  - id: MOB-3
+    name: Frame-time budget
+    kind: functional
+    description: >
+      95th-percentile frame time must be < 16.6 ms (60 fps) on target devices.
+      Measured by `v5-mobile/src/benchmarks/frame-time.test.tsx`.
+    satisfies: [MOB-1]
+
+  - id: COMP-1
+    name: Compiler frontend + MIR
+    kind: functional
+    description: >
+      `v6-compiler/` ships a frontend parser that lowers a simple expression DSL
+      to a Middle Intermediate Representation (MIR), plus a MIR interpreter that
+      executes directly in-process without the wrapper RPC layer.
+    satisfies: []
+
+  - id: COMP-2
+    name: Direct MIR beats wrapper RPC
+    kind: functional
+    description: >
+      Direct MIR interpretation must be measurably faster than wrapper RPC
+      (serialize + network round-trip per call). Measured by
+      `v6-compiler/src/benchmarks/wrapper-vs-direct.test.ts`.
+    satisfies: [COMP-1]
+
 acceptance:
   - npm run build emits dist/ without *.test.* files.
   - npm test passes (17 tests: auth 10, csp 4, create-v1-app 3).
   - npm run verify:pack passes (templates ships, bin present, no leaks).
   - npm run check:secrets passes on generated client source.
+  - v5-mobile: 4 tests pass (frame-time 2, cold-start 2).
+  - v6-compiler: 3 tests pass (wrapper vs direct benchmark).

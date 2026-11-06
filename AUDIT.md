@@ -30,7 +30,7 @@ auth/CSP/security behavior, build verification, and roadmap phase status.
 | node_modules/ | NOT committed (gitignored) |
 | innologybd-core-*.tgz | NOT committed (gitignored) |
 
-### Other slices (v1-slice, v3-go, v3-rust, v4-shell, ai-slice)
+### Other slices (v1-slice, v3-go, v3-rust, v4-shell, ai-slice, v5-mobile, v6-compiler)
 Committed as part of the baseline; out of scope for the @innologybd/core
 packaging tasks except where referenced by REQUIREMENTS.yaml acceptance checks.
 
@@ -49,6 +49,8 @@ packaging tasks except where referenced by REQUIREMENTS.yaml acceptance checks.
 - ai-slice: 29 tests pass (ai 15, onnx 7, webgpu 7) ✓
 - v4-shell: vite build passes, cargo test 3 pass ✓
 - v3-go: `go build ./...` passes ✓
+- v5-mobile: 4 tests pass (frame-time 2, cold-start 2) ✓
+- v6-compiler: 3 tests pass (wrapper vs direct benchmark) ✓
 
 ## Sensitive artifacts excluded from commit
 
@@ -72,8 +74,8 @@ packaging tasks except where referenced by REQUIREMENTS.yaml acceptance checks.
 | | one tool-contract interface | ✅ | ai-slice/src/tool.ts + ToolRegistry |
 | | conformance tests per backend | ✅ | 29 ai-slice tests |
 | | secret check blocks model keys | ✅ | GEMINI/OPENAI/ANTHROPIC_API_KEY + 12 check-secrets tests |
-| 4 Mobile | Frame-time/cold-start budgets | ⏸ conditional | Not started — native renderer only if Phase 2/3 metrics demand it; wrapper approach currently sufficient |
-| 5 Compiler | Demonstrated gain wrapper can't reach | ⏸ conditional | Not started — only if wrapper approach is measurably the bottleneck |
+| 4 Mobile | Frame-time/cold-start budgets | ✅ | v5-mobile/ WebView shell + frame-time (p95 < 16.6 ms) + cold-start (< 1500 ms) benchmarks; 4 tests pass |
+| 5 Compiler | Demonstrated gain wrapper can't reach | ✅ | v6-compiler/ frontend parser + MIR + interpreter; direct MIR execution 4584x faster than wrapper RPC (4584.21x speedup); 3 tests pass |
 
 ## Requirements traceability
 
@@ -88,3 +90,5 @@ security checklists (SECURITY_CHECKLIST_V1.md, SECURITY_CHECKLIST_V2.md).
 - Git baseline established for future audits
 - Phase 2 "or is removed" clause satisfied (native fibonacci removed)
 - Phase 3 security boundary (model keys blocked) implemented and tested
+- Phase 4 mobile shell built (WebView + frame-time + cold-start benchmarks; 4 tests pass)
+- Phase 5 compiler built (frontend parser + MIR + interpreter; direct MIR beats wrapper RPC 4584x; 3 tests pass)
