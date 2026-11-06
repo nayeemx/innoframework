@@ -1,5 +1,5 @@
 {
-  "name": "@innologybd/core",
+  "name": "innologybd-core",
   "version": "1.0.0",
   "description": "Innology Framework v1 core: typed server functions, signed auth guards, CSP presets, build-time secret checks",
   "type": "module",
