@@ -1,0 +1,50 @@
+{
+  "name": "@innologybd/core",
+  "version": "1.0.0",
+  "description": "Innology Framework v1 core: typed server functions, signed auth guards, CSP presets, build-time secret checks",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    },
+    "./rpc": {
+      "types": "./dist/rpc.d.ts",
+      "import": "./dist/rpc.js"
+    },
+    "./auth": {
+      "types": "./dist/auth.d.ts",
+      "import": "./dist/auth.js"
+    },
+    "./csp": {
+      "types": "./dist/csp.d.ts",
+      "import": "./dist/csp.js"
+    },
+    "./check-secrets": {
+      "import": "./dist/check-secrets.js"
+    }
+  },
+  "bin": {
+    "create-innology-app": "./dist/create-v1-app.js"
+  },
+  "files": ["dist", "templates", "README.md", "logo.png"],
+  "scripts": {
+    "clean": "node scripts/clean.mjs",
+    "build": "npm run clean && tsc -p tsconfig.build.json",
+    "test": "vitest run",
+    "check:secrets": "node dist/check-secrets.js",
+    "verify:pack": "node scripts/verify-pack.mjs",
+    "pack": "npm run build && npm run verify:pack -- --pack"
+  },
+  "dependencies": {
+    "zod": "^3.23.8"
+  },
+  "devDependencies": {
+    "@types/node": "^22.5.5",
+    "typescript": "^5.5.3",
+    "vitest": "^2.1.0"
+  },
+  "license": "MIT"
+}

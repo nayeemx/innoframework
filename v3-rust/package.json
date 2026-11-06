@@ -1,0 +1,21 @@
+{
+  "name": "v3-rust",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Framework v3 Rust/WASM native integration with typed client and benchmarks",
+  "scripts": {
+    "test": "npx vitest run",
+    "benchmark": "node benchmark.ts",
+    "build:rust": "cargo build --target wasm32-unknown-unknown --release",
+    "build:wasm": "cargo build --target wasm32-unknown-unknown --release && wasm-bindgen --target web --out-dir pkg target/wasm32-unknown-unknown/release/v3_rust.wasm"
+  },
+  "dependencies": {
+    "zod": "^3.23.8"
+  },
+  "devDependencies": {
+    "@types/node": "^22.5.5",
+    "typescript": "^5.5.3",
+    "vitest": "^2.1.0"
+  }
+}

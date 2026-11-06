@@ -1,0 +1,32 @@
+# Framework research repo — root gitignore
+# Sensitive artifacts from manual curl verification must never be committed.
+
+cookies.txt
+*.cookie
+*.session
+*.pem
+*.key
+.env
+.env.*
+
+# Node / TS build artifacts
+node_modules/
+dist/
+*.tgz
+innologybd-core-*.tgz
+
+# Rust / Tauri build output
+**/target/
+
+# IDE / OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# Local scaffolder verification output
+test-app/
+verify-install/
+
+# Generated research scratch
+render_logo.py

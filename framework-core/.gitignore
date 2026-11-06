@@ -1,0 +1,24 @@
+# Dependencies
+node_modules/
+
+# Build output
+dist/
+
+# Test artifacts
+*.tgz
+innologybd-core-*.tgz
+
+# Local scaffolder verification output
+test-app/
+verify-install/
+
+# IDE / OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# Env (never commit secrets)
+.env
+.env.local
+.env.*.local
