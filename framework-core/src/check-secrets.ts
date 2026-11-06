@@ -18,6 +18,12 @@ const SERVER_PREFIXES = [
   "PRIVATE_",
   "process.env.DATABASE_URL",
   "process.env.JWT_SECRET",
+  "process.env.GEMINI_API_KEY",
+  "process.env.OPENAI_API_KEY",
+  "process.env.ANTHROPIC_API_KEY",
+  "import.meta.env.GEMINI_API_KEY",
+  "import.meta.env.OPENAI_API_KEY",
+  "import.meta.env.ANTHROPIC_API_KEY",
 ];
 const EXCLUDE = ["node_modules", "dist", ".git", "test", "__tests__"];
 

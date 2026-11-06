@@ -120,6 +120,22 @@ fn health(state: tauri::State<'_, AppState>) -> Result<HealthResult, String> {
     })
 }
 
+/// Native fibonacci computation for benchmarking against the JS path.
+#[tauri::command]
+fn fibonacci_native(n: u32) -> Result<u32, String> {
+    if n > 50 {
+        return Err("n too large (overflow)".to_string());
+    }
+    let mut a: u32 = 0;
+    let mut b: u32 = 1;
+    for _ in 0..n {
+        let c = a.wrapping_add(b);
+        a = b;
+        b = c;
+    }
+    Ok(a)
+}
+
 fn main() {
     tauri::Builder::default()
         .manage(AppState::default())
@@ -128,7 +144,8 @@ fn main() {
             lock,
             health,
             get_message,
-            get_profile
+            get_profile,
+            fibonacci_native
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

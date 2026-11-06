@@ -22,6 +22,12 @@ innologybd-core-*.tgz
 *.exe
 v3-go/v3-go
 
+# v4-shell benchmark artifacts
+v4-shell/fib_native.rs
+v4-shell/fib_native
+v4-shell/fib_native.exe
+v4-shell/fib_native.pdb
+
 # IDE / OS
 .vscode/
 .idea/
