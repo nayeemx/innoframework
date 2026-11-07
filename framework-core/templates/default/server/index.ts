@@ -14,8 +14,8 @@ import {
   validateSession,
   authGuard,
   requireRole,
-} from "@innologybd/core";
-import { makeSession } from "@innologybd/core/auth";
+} from "innologybd-core";
+import { makeSession } from "innologybd-core/auth";
 
 const app = express();
 const PORT = process.env.PORT ? Number(process.env.PORT) : 3001;

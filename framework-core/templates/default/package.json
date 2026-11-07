@@ -13,7 +13,7 @@
     "test": "vitest run"
   },
   "dependencies": {
-    "innologybd-core": "^1.0.0",
+    "innologybd-core": "^1.0.1",
     "express": "^4.19.2",
     "cookie-parser": "^1.4.6",
     "react": "^18.3.1",
