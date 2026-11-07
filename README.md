@@ -2,13 +2,16 @@
 
 A multi-target TypeScript fullstack framework research project (v1–v6) with typed
 server functions, signed-session auth guards, CSP presets, build-time secret checks,
-a WebView mobile shell, and a compiler frontend + MIR. The `@innologybd` package is
-published to npm as `innologybd-core@1.0.0`.
+a WebView mobile shell, and a compiler frontend + MIR. The package is
+published to npm as `innologybd-core@1.0.1`.
 
 ```
 npm install innologybd-core
 npx create-innology-app my-app
-cd my-app && npm install && npm run dev
+cd my-app
+# NOTE: Use --ignore-scripts on Node v26 (esbuild postinstall fails otherwise)
+npm install --ignore-scripts
+npm run dev
 ```
 
 ## Repository layout
