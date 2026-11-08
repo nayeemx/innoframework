@@ -18,9 +18,10 @@ serde_json = "1"
 thiserror = "1"
 toml = "0.8"
 axum = "0.7"
-tokio = { version = "1", features = ["rt-multi-thread", "macros", "net"] }
+tokio = { version = "1", features = ["rt-multi-thread", "macros", "net", "io-util"] }
 tower = "0.4"
 http-body-util = "0.1"
+http = "1"
 proc-macro2 = "1"
 quote = "1"
 syn = { version = "2", features = ["full", "parsing"] }

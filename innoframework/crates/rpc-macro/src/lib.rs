@@ -4,9 +4,9 @@
 //!
 //! Usage:
 //! ```rust,ignore
-//! #[rpc(guard = Role::Admin)]
-//! async fn admin_route() -> Result<(), AuthError> {
-//!     Ok(())
+//! #[rpc(guard = AdminGuard)]
+//! async fn admin_route(input: Value) -> Result<Value, AuthError> {
+//!     Ok(Value::Null)
 //! }
 //! ```
 //!
@@ -35,18 +35,16 @@ fn to_upper_camel_case(s: &str) -> String {
 /// enforcing that every RPC route has an auth guard at compile time.
 #[proc_macro_attribute]
 pub fn rpc(attr: TokenStream, item: TokenStream) -> TokenStream {
-    let attr = parse_macro_input!(attr as Meta);
+    let _attr = parse_macro_input!(attr as Meta);
     let input = parse_macro_input!(item as ItemFn);
 
-    let _guard_expr = match &attr {
-        Meta::NameValue(nv) if nv.path.is_ident("guard") => {
-            let val = &nv.value;
-            quote! { #val }
-        }
+    // Validate that the attribute has a `guard = ...` argument.
+    let _guard_expr = match &_attr {
+        syn::Meta::NameValue(nv) if nv.path.is_ident("guard") => &nv.value,
         _ => {
             return syn::Error::new_spanned(
-                &attr,
-                "rpc route must declare a guard: #[rpc(guard = Role::Admin)]",
+                &_attr,
+                "rpc route must declare a guard: #[rpc(guard = AdminGuard)]",
             )
             .to_compile_error()
             .into();
@@ -70,8 +68,18 @@ pub fn rpc(attr: TokenStream, item: TokenStream) -> TokenStream {
         impl innoframework_rpc::Guarded for #route_name {}
 
         impl innoframework_rpc::RpcRoute for #route_name {
-            async fn handle(&self) -> Result<(), innoframework_rpc::AuthError> {
-                #name().await
+            fn handle(
+                &self,
+                input: serde_json::Value,
+            ) -> std::pin::Pin<
+                Box<
+                    dyn std::future::Future<
+                            Output = Result<serde_json::Value, innoframework_rpc::AuthError>,
+                        > + Send
+                        + Sync,
+                >,
+            > {
+                Box::pin(async move { #name(input).await })
             }
         }
     };
