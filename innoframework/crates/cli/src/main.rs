@@ -5,10 +5,8 @@
 //! - `inno dev` — run the dev server for a local project
 //! - `inno build` — build for web/desktop/mobile targets
 
-mod commands;
-mod errors;
-
 use clap::Parser;
+use innoframework_cli::{commands, BuildTarget};
 
 /// Innoframework CLI — scaffold, develop, and build Innoframework apps.
 #[derive(Parser, Debug)]
@@ -41,13 +39,6 @@ enum Commands {
         #[arg(value_enum)]
         target: BuildTarget,
     },
-}
-
-#[derive(clap::ValueEnum, Clone, Debug)]
-enum BuildTarget {
-    Web,
-    Desktop,
-    Mobile,
 }
 
 fn main() {

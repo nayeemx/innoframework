@@ -425,6 +425,28 @@ fn main() {
     }
 }
 
+pub fn wizard_defaults(project_name: String) -> WizardAnswers {
+    WizardAnswers {
+        project_name,
+        platforms: vec![Platform::Web],
+        data_backend: DataBackend::FirebaseDev,
+        ai_provider: AiProvider::None,
+        auth_method: AuthMethod::Session,
+    }
+}
+
+pub fn render_manifest(answers: &WizardAnswers) -> String {
+    generate_manifest(answers)
+}
+
+pub fn render_cargo_toml(answers: &WizardAnswers) -> String {
+    generate_cargo_toml(answers)
+}
+
+pub fn render_main_rs(answers: &WizardAnswers) -> String {
+    generate_main_rs(answers)
+}
+
 fn io_error(e: io::Error) -> InnoframeworkCliError {
     InnoframeworkCliError::new(
         CliErrorCode::InitDirExists,

@@ -50,8 +50,7 @@ pub fn run(port: u16) -> Result<(), InnoframeworkCliError> {
 }
 
 /// Locate the dx web output directory under `target/dx`.
-fn find_public_dir() -> Option<PathBuf> {
-    let root = Path::new("target/dx");
+pub fn find_public_dir_in(root: &Path) -> Option<PathBuf> {
     for entry in std::fs::read_dir(root).ok()?.flatten() {
         let candidate = entry.path().join("release").join("web").join("public");
         if candidate.join("index.html").exists() {
@@ -59,6 +58,10 @@ fn find_public_dir() -> Option<PathBuf> {
         }
     }
     None
+}
+
+fn find_public_dir() -> Option<PathBuf> {
+    find_public_dir_in(Path::new("target/dx"))
 }
 
 fn handle(mut stream: std::net::TcpStream, public: &Path, csp: &str) -> std::io::Result<()> {

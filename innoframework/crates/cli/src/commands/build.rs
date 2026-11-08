@@ -1,9 +1,10 @@
 //! `inno build` — build for web, desktop, or mobile targets.
 
 use crate::errors::InnoframeworkCliError;
+use crate::BuildTarget;
 
 /// Build for the given target.
-pub fn run(target: crate::BuildTarget) -> Result<(), InnoframeworkCliError> {
+pub fn run(target: BuildTarget) -> Result<(), InnoframeworkCliError> {
     // Read manifest
     let manifest_path = std::path::Path::new("inno.toml");
     if !manifest_path.exists() {
@@ -23,9 +24,9 @@ pub fn run(target: crate::BuildTarget) -> Result<(), InnoframeworkCliError> {
     check_secret_boundary(&manifest)?;
 
     match target {
-        crate::BuildTarget::Web => build_web(&manifest)?,
-        crate::BuildTarget::Desktop => build_desktop(&manifest)?,
-        crate::BuildTarget::Mobile => build_mobile(&manifest)?,
+        BuildTarget::Web => build_web(&manifest)?,
+        BuildTarget::Desktop => build_desktop(&manifest)?,
+        BuildTarget::Mobile => build_mobile(&manifest)?,
     }
 
     Ok(())
@@ -33,7 +34,7 @@ pub fn run(target: crate::BuildTarget) -> Result<(), InnoframeworkCliError> {
 
 /// Check the manifest for secret values (secret boundary).
 /// Secret patterns are rejected before any build step runs.
-fn check_secret_boundary(manifest: &str) -> Result<(), InnoframeworkCliError> {
+pub fn check_secret_boundary(manifest: &str) -> Result<(), InnoframeworkCliError> {
     // Known credential prefixes (same set as the core secret module, but
     // duplicated here so the CLI can fail fast without importing core).
     const SECRET_PREFIXES: &[(&str, &str)] = &[
@@ -134,7 +135,7 @@ fn build_web(_manifest: &str) -> Result<(), InnoframeworkCliError> {
 /// dx 0.7 writes `target/dx/<app>/release/web/public`. The app directory is
 /// not known in advance, so every `<app>` candidate is checked for
 /// `index.html`.
-fn find_dx_public_dir(root: &std::path::Path) -> Option<std::path::PathBuf> {
+pub fn find_dx_public_dir(root: &std::path::Path) -> Option<std::path::PathBuf> {
     let entries = std::fs::read_dir(root).ok()?;
     for entry in entries.flatten() {
         let candidate = entry.path().join("release").join("web").join("public");
@@ -162,7 +163,7 @@ fn build_mobile(_manifest: &str) -> Result<(), InnoframeworkCliError> {
 }
 
 /// Generate a default CSP header (no exception slots).
-fn generate_csp_header() -> String {
+pub fn generate_csp_header() -> String {
     // CSP with no exception slot — overrides must be explicit and listed
     // in the manifest (ADR-04, SEC-BUILD).
     "Content-Security-Policy: default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'self'; frame-ancestors 'none'; base-uri 'self'; form-action 'self';".to_string()
