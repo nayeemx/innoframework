@@ -1,9 +1,9 @@
 [package]
 name = "innoframework-cli"
-version.workspace = true
-edition.workspace = true
-license.workspace = true
-rust-version.workspace = true
+version = "0.1.0"
+edition = "2021"
+license = "MIT"
+rust-version = "1.80"
 
 [[bin]]
 name = "inno"
@@ -12,3 +12,5 @@ path = "src/main.rs"
 [dependencies]
 serde.workspace = true
 serde_json.workspace = true
+clap.workspace = true
+thiserror.workspace = true
