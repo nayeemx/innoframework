@@ -57,11 +57,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: EmbarkStudios/cargo-deny-action@v2
-        with:
-          command: check
-          manifest-path: innoframework/Cargo.toml
-          arguments: --all-features
+      - uses: dtolnay/rust-toolchain@stable
+      - name: Install cargo-deny
+        run: cargo install cargo-deny --locked
+      - run: cargo deny check --all-features
 
   audit:
     name: cargo-audit
