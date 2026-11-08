@@ -1,9 +1,16 @@
-//! innoframework-core: sessions, roles, and the fail-closed auth guard.
+//! innoframework-core: error model, sessions, roles, and the fail-closed auth guard.
 //!
 //! Token format: `base64url(payload_json).base64url(hmac_sha256(payload_bytes))`.
 //! Verification is constant-time and rejects expired tokens. Every rejection
 //! returns the same `AuthError::Invalid` variant on the public path so callers
 //! cannot distinguish a forged token from a malformed one (SEC-RPC-4).
+
+pub mod capability;
+pub mod error;
+pub mod validation;
+
+pub use error::{ErrorCode, InnoframeworkError};
+pub use validation::Validate;
 
 use base64::engine::general_purpose::URL_SAFE_NO_PAD as B64;
 use base64::Engine;
