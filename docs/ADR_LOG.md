@@ -18,6 +18,7 @@ Changing an `Accepted` ADR requires a new ADR that supersedes it.
 | ADR-10 | Data adapters | Accepted (scoped) | — |
 | ADR-11 | Product name: Innoframework | Accepted (search pending) | Formal trademark clearance still required |
 | ADR-12 | Reference hardware | Accepted (partial) | Low tier = owner machine i5-8350U, 16 GB, Intel UHD 620, Win11. Mid and high tiers still needed. |
+| ADR-13 | Mobile store submission | Accepted | Store publishing out of scope until Apple and Google Play accounts exist. Mobile build and test are not blocked. |
 
 ## ADR-01: Rust as the only core language
 - Context: the owner's existing stacks run on Node.js, PHP, Python, and Go. Several recent advisories affected Node and PHP. One language for the core reduces the attack surface and the number of runtimes the user must install.
