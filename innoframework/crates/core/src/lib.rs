@@ -7,9 +7,11 @@
 
 pub mod capability;
 pub mod error;
+pub mod manifest;
 pub mod validation;
 
 pub use error::{ErrorCode, InnoframeworkError};
+pub use manifest::Manifest;
 pub use validation::Validate;
 
 use base64::engine::general_purpose::URL_SAFE_NO_PAD as B64;
