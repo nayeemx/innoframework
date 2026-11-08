@@ -1,0 +1,5 @@
+[project]
+name = "my-app"
+version = "1.0.0"
+targets = ["web"]
+secret = "should-not-be-accepted"

@@ -1,0 +1,5 @@
+name=my-app
+version=1.2.3
+targets=web,desktop
+capability=fs.read platforms=desktop scope=path_prefixes:data/
+capability=notify.send platforms=desktop,mobile scope=unrestricted

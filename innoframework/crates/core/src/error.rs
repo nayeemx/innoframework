@@ -19,8 +19,10 @@ impl ErrorCode {
         Self(code)
     }
 
-    /// Create a const error code (for internal const definitions). Caller must ensure code > 0.
-    pub const fn new_const(code: u16) -> Self {
+    /// Create an error code in a `const` context. Panics at compile time if
+    /// `code` is 0. Crate-private: public codes are created with `new`.
+    pub(crate) const fn new_const(code: u16) -> Self {
+        assert!(code > 0, "error code 0 is reserved");
         Self(code)
     }
 

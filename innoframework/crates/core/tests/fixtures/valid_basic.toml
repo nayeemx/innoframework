@@ -1,0 +1,13 @@
+[project]
+name = "my-app"
+version = "1.2.3"
+targets = ["web", "desktop"]
+
+[[capabilities]]
+id = "fs.read"
+platforms = ["desktop"]
+path_prefixes = ["data/"]
+
+[[capabilities]]
+id = "notify.send"
+platforms = ["desktop", "mobile"]

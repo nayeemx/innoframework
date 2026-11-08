@@ -1,0 +1,9 @@
+[project]
+name = "my-app"
+version = "1.0.0"
+targets = ["web"]
+
+[[capabilities]]
+id = "fs.write"
+platforms = ["web"]
+extra_scope = true

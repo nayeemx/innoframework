@@ -7,7 +7,7 @@
 
 use crate::capability::{Capability, Platform};
 use crate::error::{ErrorCode, InnoframeworkError};
-use crate::validation::{invalid, Validate};
+use crate::validation::Validate;
 
 /// Error code for manifest validation failures.
 pub const MANIFEST_ERROR: ErrorCode = ErrorCode::new_const(1200);
@@ -56,7 +56,6 @@ impl Manifest {
         m.validate()?;
         Ok(m)
     }
-
     pub fn name(&self) -> &str {
         &self.name
     }
@@ -83,7 +82,10 @@ impl Validate for Manifest {
                 .bytes()
                 .all(|b| b.is_ascii_lowercase() || b.is_ascii_digit() || b == b'-');
         if !name_ok {
-            return Err(invalid(format!("invalid manifest name: {:?}", self.name)));
+            return Err(InnoframeworkError::new(
+                MANIFEST_ERROR,
+                format!("invalid manifest name: {:?}", self.name),
+            ));
         }
 
         // Version: must look like semver (X.Y.Z) without pre-release for now.
@@ -93,15 +95,18 @@ impl Validate for Manifest {
                 .iter()
                 .all(|p| p.chars().all(|c| c.is_ascii_digit()) && !p.is_empty());
         if !version_ok {
-            return Err(invalid(format!(
-                "invalid version (expected X.Y.Z): {:?}",
-                self.version
-            )));
+            return Err(InnoframeworkError::new(
+                MANIFEST_ERROR,
+                format!("invalid version (expected X.Y.Z): {:?}", self.version),
+            ));
         }
 
         // Targets: at least one.
         if self.targets.is_empty() {
-            return Err(invalid("manifest must declare at least one target"));
+            return Err(InnoframeworkError::new(
+                MANIFEST_ERROR,
+                "manifest must declare at least one target",
+            ));
         }
 
         // Capabilities: validate each one (already validated at construction,
