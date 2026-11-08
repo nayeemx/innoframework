@@ -19,6 +19,9 @@ Changing an `Accepted` ADR requires a new ADR that supersedes it.
 | ADR-11 | Product name: Innoframework | Accepted (search pending) | Formal trademark clearance still required |
 | ADR-12 | Reference hardware | Accepted (partial) | Low tier = owner machine i5-8350U, 16 GB, Intel UHD 620, Win11. Mid and high tiers still needed. |
 | ADR-13 | Mobile store submission | Accepted | Store publishing out of scope until Apple and Google Play accounts exist. Mobile build and test are not blocked. |
+| ADR-14 | RPC codegen: proc-macro | Accepted | RPC route typestate (guard required at compile-time) is implemented by a proc-macro crate; build-script only generates data. |
+| ADR-15 | Component list ~15 | Accepted | v1 ships ~15 components (Button, Input, Select, Checkbox, Radio, Switch, Dialog, Popover, Tooltip, Tabs, Table, Form, Toast, Card, Layout primitives). Fewer correct components over more with accessibility debt. |
+| ADR-16 | Firebase dev backend + storage trait | Accepted | Firebase is the development backend; Postgres and SQLite adapters are P6. The `Storage` trait is abstracted in core (ADR-05) so adapter choice does not block P1–P5. |
 
 ## ADR-01: Rust as the only core language
 - Context: the owner's existing stacks run on Node.js, PHP, Python, and Go. Several recent advisories affected Node and PHP. One language for the core reduces the attack surface and the number of runtimes the user must install.
@@ -57,7 +60,9 @@ Changing an `Accepted` ADR requires a new ADR that supersedes it.
 - Decision: docs are a static build deployed to Netlify. Headers follow the pattern in the owner's portfolio `netlify.toml` (CSP, frame-ancestors none, HSTS, Permissions-Policy).
 
 ## ADR-09 to ADR-12
-Open. See `ARCHITECTURE_PLAN.md` section 7. These are decisions for the owner. Each will be written as an ADR once answered.
+Open where noted. ADR-09 signing is still open (no Windows certificate, no Apple developer account). ADR-10, ADR-11, and ADR-12 are written as ADRs below.
+
+
 
 
 ## ADR-13: Mobile store submission
@@ -71,4 +76,23 @@ Status: Accepted, pending formal trademark search. Name follows the owner's patt
 
 ## ADR-12 (hardware) — partial
 Low-tier reference confirmed on the owner's machine (Intel Core i5-8350U 1.7 GHz, 4C/8T, 15.8 GB RAM, Intel UHD 620, Windows 11 Pro). Mid and high reference machines are still needed before any benchmark is published.
+
+## ADR-14: RPC codegen — proc-macro
+Status: Accepted.
+- Context: TR-1.3 requires that a route without an auth guard fail to compile. A build-script generates router code but cannot make missing guards a type-system error at the call site. Only a proc-macro can transform a route declaration into a guard-set / not-set type.
+- Decision: RPC route typestate is implemented by a proc-macro crate (`innoframework-rpc-macro`). The macro generates typed route structs and the router table; a separate `innoframework-rpc` crate holds the runtime. `#[rpc(guard = ...)]` marks a route as guarded; routes without a guard fail to compile.
+- Consequences: proc-macro crates must depend on `proc-macro2`, `quote`, `syn`; runtime cannot use the macro crate directly (proc-macro crates cannot be imported as normal libraries). Crate structure mirrors syn/quote conventions.
+- Revisit if: macro compile times exceed budget or an external schema (JSON/TOML) is needed as the route source of truth.
+
+## ADR-15: Component list ~15
+Status: Accepted.
+- Context: TR-4.1 proposes at least 15 components, each with keyboard + ARIA accessibility tests. ADR-03 wraps Dioxus behind the `Renderer` trait.
+- Decision: v1 ships ~15 components: Button, Input, Select, Checkbox, Radio, Switch, Dialog, Popover, Tooltip, Tabs, Table, Form, Toast, Card, Layout primitives. Accessibility is per-component with CI checks (axe-core for web; AccessKit evaluated for desktop).
+- Revisit if: P4 bundle or accessibility gate shows 15 components is too much for one engineer; then drop lower-priority components, not accessibility.
+
+## ADR-16: Firebase dev backend + storage trait
+Status: Accepted.
+- Context: ADR-10 scopes Firebase as the dev backend; Postgres/SQLite are VPS options. ADR-05 requires storage behind a trait.
+- Decision: Firebase is the development adapter behind the `Storage` trait (ADR-05). Postgres and SQLite adapters are P6. Concrete adapters do not block P1–P5; the trait is defined in core now so all adapters share the same interface.
+- Revisit if: Firebase credentials become unavailable or cost exceeds budget before VPS migration.
 

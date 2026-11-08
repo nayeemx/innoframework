@@ -1,18 +1,13 @@
 [package]
 name = "innoframework-rpc"
-version.workspace = true
-edition.workspace = true
-license.workspace = true
-rust-version.workspace = true
+version = "0.1.0"
+edition = "2021"
+license = "MIT"
+rust-version = "1.80"
 
 [dependencies]
-innoframework-core = { version = "0.1.0", path = "../core" }
-axum.workspace = true
-tokio.workspace = true
-serde.workspace = true
-serde_json.workspace = true
-tower.workspace = true
-http-body-util.workspace = true
+innoframework-core = { path = "../core", version = "0.1.0" }
 
 [dev-dependencies]
-tokio = { workspace = true, features = ["rt-multi-thread", "macros", "net"] }
+innoframework-core = { path = "../core", version = "0.1.0" }
+innoframework-rpc-macro = { path = "../rpc-macro", version = "0.1.0" }

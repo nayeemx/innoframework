@@ -1,6 +1,6 @@
 [workspace]
 resolver = "2"
-members = ["crates/core", "crates/rpc", "crates/cli"]
+members = ["crates/core", "crates/rpc", "crates/rpc-macro", "crates/cli"]
 
 [workspace.package]
 version = "0.1.0"
@@ -21,3 +21,7 @@ axum = "0.7"
 tokio = { version = "1", features = ["rt-multi-thread", "macros", "net"] }
 tower = "0.4"
 http-body-util = "0.1"
+proc-macro2 = "1"
+quote = "1"
+syn = { version = "2", features = ["full", "parsing"] }
+trybuild = "3"
