@@ -5,9 +5,12 @@
 //! returns the same `AuthError::Invalid` variant on the public path so callers
 //! cannot distinguish a forged token from a malformed one (SEC-RPC-4).
 
+pub mod agent;
+pub mod build_target;
 pub mod capability;
 pub mod error;
 pub mod manifest;
+pub mod tool;
 pub mod validation;
 
 pub use error::{ErrorCode, InnoframeworkError};
