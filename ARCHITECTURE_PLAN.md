@@ -1,7 +1,7 @@
-# Audonomy — Architecture Plan (Planning Phase, no implementation code)
+﻿# Innoframework — Architecture Plan (Planning Phase, no implementation code)
 
 Status: DRAFT for review. Supersedes the marketing-level blueprint in
-`AUDONOMY_FRAMEWORK_ARCHITECTURE.md` wherever the two disagree. Every claim about
+`INNOFRAMEWORK_FRAMEWORK_ARCHITECTURE.md` wherever the two disagree. Every claim about
 third-party technology below was checked against sources dated Nov 2026
 (Dioxus docs 0.7, Blitz README, Tauri 2 docs). Where a claim could not be
 verified it is marked UNVERIFIED.
@@ -17,7 +17,7 @@ verified it is marked UNVERIFIED.
 | ADR-03 | UI authoring model: **Rust components compiled to web via Dioxus 0.7 first; desktop/mobile via Tauri shell hosting the same WASM web build** | One UI codebase, two targets, no second renderer to maintain. | Yes |
 | ADR-04 | Security default-deny: capability manifest for every target, auth guard on every RPC, CSP preset, build-time secret boundary | Required by the owner and by the SECURITY_CHECKLIST_V1/V2 studies already in repo. | No |
 | ADR-05 | Every external capability (renderer, DB, AI provider, storage, auth backend) sits behind a Rust trait; concrete impls are plugins | Lets Tauri/Dioxus/webview be swapped and keeps the core testable. | No (architectural) |
-| ADR-06 | The "installer" is a **signed Rust binary** plus an optional `audonomy` self-update channel. No Node.js requirement for the user. | Owner requirement. Generated web assets are prebuilt, so the user does not need Node to run the app. Build-time JS tooling (if any) is vendored into the binary's toolchain or delivered as WASM. | Yes |
+| ADR-06 | The "installer" is a **signed Rust binary** plus an optional `inno` self-update channel. No Node.js requirement for the user. | Owner requirement. Generated web assets are prebuilt, so the user does not need Node to run the app. Build-time JS tooling (if any) is vendored into the binary's toolchain or delivered as WASM. | Yes |
 | ADR-07 | Native AI: **local GGUF via llama.cpp** as default provider; cloud providers optional and server-side only | Matches FRAMEWORK_V2_SPEC and AI-11/AI-12 in SECURITY_CHECKLIST_V2. | Yes |
 | ADR-08 | Docs site: static generator output deployed to **Netlify**; no server required for docs | Owner hosts on Netlify today (PROJECT_STACK_SURVEY). | Yes |
 
@@ -43,7 +43,7 @@ can return pass/fail.
 
 ### R2 — Installation & UX
 - TR-2.1 Install in one command per OS, no prerequisite software. Verify: fresh VM test.
-- TR-2.2 `audonomy init` wizard asks: target platforms, data backend, AI provider, auth method. Each answer produces a concrete config diff shown before writing. Verify: golden-file tests for every answer combination.
+- TR-2.2 `inno init` wizard asks: target platforms, data backend, AI provider, auth method. Each answer produces a concrete config diff shown before writing. Verify: golden-file tests for every answer combination.
 - TR-2.3 Generated project builds and runs with zero manual edits. Verify: scaffold matrix in CI.
 - TR-2.4 Errors are actionable: each error code maps to a fix sentence and doc link. Verify: lint over error catalog.
 
@@ -75,7 +75,7 @@ shipping many that are not.
 ### R6 — Documentation & showcase
 - TR-6.1 Static docs site built from the repo, deployed to Netlify, with strict CSP headers (matches portfolio's netlify.toml pattern from PROJECT_FRONTEND_STUDY). Verify: header check in CI.
 - TR-6.2 Every public API item has a doc comment and a runnable example; examples are compiled in CI. Verify: `cargo test --doc`.
-- TR-6.3 Three showcase apps, each built only with Audonomy public APIs, each with its own test suite. Verify: showcase CI.
+- TR-6.3 Three showcase apps, each built only with Innoframework public APIs, each with its own test suite. Verify: showcase CI.
 
 ---
 
@@ -88,8 +88,8 @@ shipping many that are not.
 │ L5  Product code (user app)                                    │
 │     ui/ (components)  server/ (RPC handlers)  agents/          │
 ├────────────────────────────────────────────────────────────────┤
-│ L4  Audonomy SDK (public crates)                               │
-│     audonomy-ui   audonomy-rpc   audonomy-auth   audonomy-agent│
+│ L4  Innoframework SDK (public crates)                               │
+│     inno-ui   inno-rpc   inno-auth   inno-agent│
 ├────────────────────────────────────────────────────────────────┤
 │ L3  Platform traits (stable interfaces, ADR-05)                │
 │     Renderer   Storage   Secrets   AiProvider   Notifier       │
@@ -102,7 +102,7 @@ shipping many that are not.
 │     signals  routing  serialization  capability checks         │
 │     validation  error model  event bus                         │
 ├────────────────────────────────────────────────────────────────┤
-│ L0  Toolchain: `audonomy` CLI, build orchestrator, scaffolder  │
+│ L0  Toolchain: `inno` CLI, build orchestrator, scaffolder  │
 └────────────────────────────────────────────────────────────────┘
 ```
 
@@ -113,15 +113,15 @@ adapter directly; it uses L3 traits. This is enforced by a workspace lint
 ### 2.2 Workspace layout (planned, not created)
 
 ```
-audonomy/
+inno/
   crates/
-    audonomy-core/        L1 signals, errors, validation, capability model
-    audonomy-rpc/         L4 typed RPC: macro + client stub + server router
-    audonomy-auth/        L4 sessions, guards, role checks
-    audonomy-ui/          L4 components + tokens (web build via Dioxus)
-    audonomy-agent/       L4 agent runtime + tool registry
-    audonomy-cli/         L0 `audonomy` binary
-    audonomy-build/       L0 target orchestration (web/desktop/mobile)
+    inno-core/        L1 signals, errors, validation, capability model
+    inno-rpc/         L4 typed RPC: macro + client stub + server router
+    inno-auth/        L4 sessions, guards, role checks
+    inno-ui/          L4 components + tokens (web build via Dioxus)
+    inno-agent/       L4 agent runtime + tool registry
+    inno-cli/         L0 `inno` binary
+    inno-build/       L0 target orchestration (web/desktop/mobile)
     adapters/             L2 one crate per adapter (feature-gated)
   templates/              project templates (wizard outputs)
   themes/                 token packs per platform
@@ -135,7 +135,7 @@ audonomy/
 | Entity | Fields (minimum) | Invariants |
 |---|---|---|
 | `Capability` | id (`fs.read`, `notify.send`, …), platforms[], scope (path globs / none) | A platform API call is allowed only if a Capability with matching id and platform is in the manifest |
-| `Manifest` (`audonomy.toml`) | name, version, targets[], capabilities[], data backend, auth config, ai config | Unknown capability id → build error. Secrets are never valid values (checked by the secret boundary) |
+| `Manifest` (`inno.toml`) | name, version, targets[], capabilities[], data backend, auth config, ai config | Unknown capability id → build error. Secrets are never valid values (checked by the secret boundary) |
 | `Session` | user_id, roles[], issued_at, expires_at, token_id | expires_at > issued_at; tokens are HMAC-signed; validation uses constant-time compare |
 | `RpcRoute` | name, method, input_schema, output_schema, guard, handler | A route without a guard does not compile (typestate) |
 | `Tool` | name, description, input_schema, output_schema, risk_level, handler | Registry rejects duplicate names; risk_level `high` requires explicit opt-in |
@@ -157,7 +157,7 @@ step returns a typed error; no step is skipped on error.
 
 **B. Desktop/mobile call to native API**
 ```
-UI → audonomy-core::platform::fs::read(path)
+UI → inno-core::platform::fs::read(path)
    → capability check against manifest (compile-time where possible, runtime otherwise)
    → Tauri command (only the commands named in the capability file are exposed)
    → adapter (fs/keychain/notify) → result
@@ -174,7 +174,7 @@ user prompt → injection screen → render system template (substitution only)
 
 **D. Build**
 ```
-audonomy build <target>
+inno build <target>
   → read manifest → check capabilities + secrets (fail fast)
   → compile Rust per target (cargo, pinned toolchain via rustup)
   → web: wasm-bindgen + static assets + CSP header file
@@ -215,7 +215,7 @@ It removes the three failure modes in the owner's stack survey:
 | **SOLID** | S: one crate per capability; O: new adapter without core change; L: all adapters pass the same conformance suite; I: small traits (Storage, Secrets split); D: core depends on abstractions | Enforced by review checklist and conformance tests |
 | **DRY via codegen, not macros-everywhere** | Route/RPC stubs, capability files | Macros only where the type system cannot express it; otherwise build-time codegen |
 | **Structured concurrency** | Agent loop, build orchestrator | Every spawned task has an owner and a cancel path |
-| **Error model** | All crates | One `AudonomyError` enum with stable codes (`AUD-xxxx`); user messages and internal details are separate fields; internal details never cross the RPC boundary (SEC-RPC-4) |
+| **Error model** | All crates | One `InnoframeworkError` enum with stable codes (`AUD-xxxx`); user messages and internal details are separate fields; internal details never cross the RPC boundary (SEC-RPC-4) |
 | **Observability by default** | RPC, agent, build | `tracing` spans with request id; no secrets in spans (checked by a redaction test) |
 | **Dependency rules** | Workspace | A `cargo-deny` + custom check fails if L5 imports L2, or if L1 has I/O |
 
@@ -244,7 +244,7 @@ It removes the three failure modes in the owner's stack survey:
 | RK-9 | Installer trust (unsigned binary blocked by Windows SmartScreen / macOS Gatekeeper) | High | High | Code-sign releases; publish checksums; SBOM | First user install report |
 | RK-10 | Documentation drift from code | High | Medium | Doc examples compiled in CI (TR-6.2); API reference generated from source | Broken doc tests |
 | RK-11 | Owner's own time: the work is large and multi-year for one person | High | Critical | Phased roadmap with a usable product at each gate; showcase apps reuse existing owner projects where possible | Phase gate slips twice |
-| RK-12 | Prior art already solves parts (Tauri, Dioxus, Leptos, Loco) | High | Medium | Position Audonomy as an integrator with the security and capability model as its own value; do not reimplement what they do well — wrap it | Competing features |
+| RK-12 | Prior art already solves parts (Tauri, Dioxus, Leptos, Loco) | High | Medium | Position Innoframework as an integrator with the security and capability model as its own value; do not reimplement what they do well — wrap it | Competing features |
 | RK-13 | Supply-chain attack via build tools (the owner's stated concern) | Medium | Critical | Minimal build dependencies, vendored toolchain config, reproducible builds, no post-install scripts in generated projects | Advisory feed |
 
 **Edge cases that must have tests before Phase 2:**
@@ -283,7 +283,7 @@ docs site. AI, mobile, and the showcase apps come after.
 | **P0** | Foundation & decisions | This plan approved; ADR log; repo skeleton; CI (fmt, clippy, test, cargo-deny, cargo-audit); threat model doc; traceability matrix template; benchmark harness design | Plan approved by owner; CI green on empty workspace; traceability template exists | 1–2 weeks |
 | **P1** | Core runtime (L1) | Signals, error model, validation, capability model, manifest parser + schema, secret boundary check | Unit tests for every invariant in §2.3; compile-fail tests for typestate; manifest golden tests; secret-boundary negative tests | 4–6 weeks |
 | **P2** | RPC + auth (L4 part 1) | Typed RPC macro/codegen, router, guard typestate, session tokens (HMAC, constant-time), CSRF checks, error mapper, body limits | TR-1.3, SEC-RPC-1..4, CSRF-1..8 negative tests all green; RPC call from a generated client to a running server over real HTTP; 401/403/413/422 tested | 4–6 weeks |
-| **P3** | CLI + wizard + web build (L0, L5) | `audonomy init` wizard, `dev`, `build web`, templates, CSP header generation, WASM build | TR-2.1–2.4 pass; fresh-VM install test; generated app builds and serves with CSP header; bundle budget met (§4 perf) | 4–6 weeks |
+| **P3** | CLI + wizard + web build (L0, L5) | `inno init` wizard, `dev`, `build web`, templates, CSP header generation, WASM build | TR-2.1–2.4 pass; fresh-VM install test; generated app builds and serves with CSP header; bundle budget met (§4 perf) | 4–6 weeks |
 | **P4** | UI kit v1 + themes (L4 UI) | ~15 components, token system, Windows + Web themes, 3 layout templates, accessibility checks | TR-4.1–4.5 for shipped items; axe/AccessKit CI green; visual snapshots for 3 breakpoints | 6–8 weeks |
 | **P5** | Desktop shell (L2 Tauri) | Tauri 2 adapter, capability JSON generation, native fs/notify/keychain adapters, signed Windows installer | TR-3.1 (desktop), TR-3.2 negative tests; installer runs on clean Windows VM; benchmark vs PWA recorded | 4–6 weeks |
 | **P6** | Data layer | Postgres + SQLite adapters, migrations, conformance suite run against both | Conformance suite passes on both; migration checksum tests; backup/restore test | 3–4 weeks |
@@ -343,7 +343,7 @@ benchmark for it exists in the repo.
 2. Confirm ADR-01: Rust as the only core language.
 3. Choose v1 component list (§4 TR-4.1) — the list is a proposal.
 4. Choose the first two adapters: Postgres and SQLite? Or Firebase first to match existing projects?
-5. Name and legal: "Audonomy" was used in the last blueprint without a trademark check. Confirm the name or pick another before public docs (see TR gap noted in Phase 0 of the earlier roadmap).
+5. Name and legal: "Innoframework" was used in the last blueprint without a trademark check. Confirm the name or pick another before public docs (see TR gap noted in Phase 0 of the earlier roadmap).
 6. Who signs the release binaries (code-signing certificate for Windows and Apple developer account for macOS/iOS).
 7. Reference hardware for benchmarks (one low, one mid, one high spec machine).
 

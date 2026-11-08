@@ -1,4 +1,4 @@
-# Architecture Decision Log
+﻿# Architecture Decision Log
 
 Format: each ADR has a status. `Proposed` = waiting for owner approval.
 `Accepted` = approved and binding. `Superseded` = replaced by a later ADR.
@@ -6,18 +6,18 @@ Changing an `Accepted` ADR requires a new ADR that supersedes it.
 
 | ID | Title | Status | Owner decision needed |
 |---|---|---|---|
-| ADR-01 | Rust as the only core language | Proposed | Yes (confirm) |
-| ADR-02 | Tauri 2 for desktop and mobile; no in-house renderer in v1 | Proposed | Yes (confirm) |
-| ADR-03 | Dioxus 0.7 for the web UI build; same WASM output hosted by the Tauri shell | Proposed | Yes (confirm) |
-| ADR-04 | Default-deny security: capabilities, auth guard on every RPC, CSP, build-time secret boundary | Proposed | No |
-| ADR-05 | Platform capabilities behind Rust traits; concrete implementations are adapters | Proposed | No |
-| ADR-06 | Single signed Rust CLI; no Node.js required on the user's machine | Proposed | Partly (signing, see ADR-09) |
-| ADR-07 | Local llama.cpp (GGUF) as default AI provider; remote providers server-side only | Proposed | No |
-| ADR-08 | Docs site is static output deployed to Netlify with strict headers | Proposed | No |
-| ADR-09 | Release signing: Windows code-signing and Apple developer identity | Open | Yes (who holds the certificates) |
-| ADR-10 | First two data adapters: Postgres + SQLite, or Firebase first | Open | Yes |
-| ADR-11 | Product name | Open | Yes (trademark check required) |
-| ADR-12 | Reference hardware for benchmarks | Open | Yes |
+| ADR-01 | Rust as the only core language | Accepted | — |
+| ADR-02 | Tauri 2 for desktop and mobile; no in-house renderer in v1 | Accepted | — |
+| ADR-03 | Dioxus 0.7 for the web UI build; same WASM output hosted by the Tauri shell | Accepted | — |
+| ADR-04 | Default-deny security: capabilities, auth guard on every RPC, CSP, build-time secret boundary | Accepted | — |
+| ADR-05 | Platform capabilities behind Rust traits; concrete implementations are adapters | Accepted | — |
+| ADR-06 | Single signed Rust CLI; no Node.js required on the user machine | Accepted | — |
+| ADR-07 | Local llama.cpp (GGUF) as default AI provider; remote providers server-side only | Accepted | — |
+| ADR-08 | Docs site is static output deployed to Netlify with strict headers | Accepted | — |
+| ADR-09 | Release signing | Open | Windows certificate: owner has none yet. Apple: owner has no developer account. Mobile store submission deferred (see ADR-13). |
+| ADR-10 | Data adapters | Accepted (scoped) | — |
+| ADR-11 | Product name: Innoframework | Accepted (search pending) | Formal trademark clearance still required |
+| ADR-12 | Reference hardware | Accepted (partial) | Low tier = owner machine i5-8350U, 16 GB, Intel UHD 620, Win11. Mid and high tiers still needed. |
 
 ## ADR-01: Rust as the only core language
 - Context: the owner's existing stacks run on Node.js, PHP, Python, and Go. Several recent advisories affected Node and PHP. One language for the core reduces the attack surface and the number of runtimes the user must install.
@@ -57,3 +57,17 @@ Changing an `Accepted` ADR requires a new ADR that supersedes it.
 
 ## ADR-09 to ADR-12
 Open. See `ARCHITECTURE_PLAN.md` section 7. These are decisions for the owner. Each will be written as an ADR once answered.
+
+
+## ADR-13: Mobile store submission
+Status: Accepted. Owner has no Apple or Google Play developer accounts. Decision: mobile builds are produced and tested (sideload/simulator), but store publishing is out of scope until the owner has accounts. This does not block building mobile apps; it only blocks publishing them.
+
+## ADR-10 (scoped): Data adapters
+Status: Accepted for development. Firebase is the development backend because the owner's current projects use it and the owner will supply credentials. Production backends are Postgres or SQLite, chosen when the owner moves to a VPS. Both paths go through the same storage trait (ADR-05); Firebase is a plugin, not a core dependency.
+
+## ADR-11 (name) — Innoframework
+Status: Accepted, pending formal trademark search. Name follows the owner's pattern (innofinance = inno + domain-word). Searches found many unrelated 'Framework' marks but no exact 'Innoframework' mark in the results checked; this is not a clearance. A formal USPTO / EUIPO / WIPO search is required before public launch. Domain innologybd is the brand root; the repo name is nayeemx/innoframework until the owner moves it to an organization.
+
+## ADR-12 (hardware) — partial
+Low-tier reference confirmed on the owner's machine (Intel Core i5-8350U 1.7 GHz, 4C/8T, 15.8 GB RAM, Intel UHD 620, Windows 11 Pro). Mid and high reference machines are still needed before any benchmark is published.
+

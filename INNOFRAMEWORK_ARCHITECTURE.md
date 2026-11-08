@@ -1,6 +1,6 @@
-# AUDONOMY FRAMEWORK — Structural Blueprint
+﻿# INNOFRAMEWORK FRAMEWORK — Structural Blueprint
 
-**Codename:** Audonomy  
+**Codename:** Innoframework  
 **Owner:** InnologyBD  
 **Domain:** innologybd.com  
 **Documentation host:** Netlify  
@@ -10,11 +10,11 @@
 
 ## 1. Executive Summary
 
-Audonomy is a unified development framework for building secure, high-performance software across web, desktop, mobile, and cross-platform targets from a **single codebase**. It is not a wrapper around npm packages. It is a compiled framework written in Rust with a self-contained CLI that requires no Node.js installation by the end user.
+Innoframework is a unified development framework for building secure, high-performance software across web, desktop, mobile, and cross-platform targets from a **single codebase**. It is not a wrapper around npm packages. It is a compiled framework written in Rust with a self-contained CLI that requires no Node.js installation by the end user.
 
 The framework addresses these failures of current stacks (identified from the 20+ project studies in D:\projects\code):
 
-| Problem in current stacks | Audonomy solution |
+| Problem in current stacks | Innoframework solution |
 |---|---|
 | Requires Node.js installation | Self-contained Rust binary CLI, zero Node dependency |
 | Built on hackable runtimes (PHP/Node.js) | Rust core with memory safety, no eval/require/shell by default |
@@ -30,7 +30,7 @@ The framework addresses these failures of current stacks (identified from the 20
 
 ### 2.1 Target Runtime Model
 
-Audonomy compiles to three target runtimes from one source:
+Innoframework compiles to three target runtimes from one source:
 
 | Target | Runtime | Technology | Binary size |
 |---|---|---|---|
@@ -112,20 +112,20 @@ Security is designed first, features second — matching the innology-code ADR p
 
 **The user never installs Node.js.** The framework ships as:
 
-1. **CLI binary** (`audonomy`) — single Rust binary, ~10MB
+1. **CLI binary** (`inno`) — single Rust binary, ~10MB
 2. **One-command install:**
    ```bash
    # macOS/Linux/Windows
-   curl -L https://innologybd.com/audonomy/install | sh
+   curl -L https://innologybd.com/inno/install | sh
    # or
-   winget install Audonomy.InnologyCLI
+   winget install Innoframework.InnologyCLI
    # or
-   brew install innologybd/audonomy
+   brew install innologybd/inno
    ```
 
-3. **Setup wizard** — `audonomy init` walks the user through:
+3. **Setup wizard** — `inno init` walks the user through:
    ```
-   Welcome to Audonomy Framework
+   Welcome to Innoframework Framework
    ================================
    
    ? What are you building?
@@ -159,20 +159,20 @@ Security is designed first, features second — matching the innology-code ADR p
 
 | Command | Purpose |
 |---|---|
-| `audonomy init` | Interactive setup wizard |
-| `audonomy add <module>` | Add a module (auth, ai, payments, email, etc.) |
-| `audonomy generate <type> <name>` | Generate component, route, server function, AI agent |
-| `audonomy dev` | Start dev server with hot reload |
-| `audonomy build <target>` | Build for web/desktop/mobile/all |
-| `audonomy test` | Run unit + integration + security tests |
-| `audonomy deploy <target>` | Deploy to Netlify/VPS/Cloudflare |
-| `audonomy doctor` | Diagnose environment issues |
+| `inno init` | Interactive setup wizard |
+| `inno add <module>` | Add a module (auth, ai, payments, email, etc.) |
+| `inno generate <type> <name>` | Generate component, route, server function, AI agent |
+| `inno dev` | Start dev server with hot reload |
+| `inno build <target>` | Build for web/desktop/mobile/all |
+| `inno test` | Run unit + integration + security tests |
+| `inno deploy <target>` | Deploy to Netlify/VPS/Cloudflare |
+| `inno doctor` | Diagnose environment issues |
 
 ### 3.3 Generated Project Structure
 
 ```
 my-app/
-├── audonomy.toml          # Project configuration
+├── inno.toml          # Project configuration
 ├── src/
 │   ├── app.rs             # Application entry
 │   ├── components/        # UI components
@@ -206,7 +206,7 @@ One Rust codebase compiles to all targets using feature flags:
 
 ```rust
 // src/app.rs — same source for all platforms
-use audonomy::prelude::*;
+use inno::prelude::*;
 
 #[component]
 fn App() -> Element {
@@ -399,13 +399,13 @@ let agent = Agent::new()
 
 ```
 docs/
-├── index.md              # Landing page — what Audonomy is
+├── index.md              # Landing page — what Innoframework is
 ├── get-started/          # Installation and setup
 │   ├── install.md        # CLI installation (no Node.js)
 │   ├── quickstart.md     # 5-minute app build
 │   └── wizard.md         # Interactive setup wizard guide
 ├── core/                 # Core framework concepts
-│   ├── architecture.md   # How Audonomy works under the hood
+│   ├── architecture.md   # How Innoframework works under the hood
 │   ├── security.md       # Security model, CSP, auth, secrets
 │   ├── reactivity.md     # Signal-based reactivity explained
 │   └── build.md          # Build pipeline, targets
@@ -424,7 +424,7 @@ docs/
 │   ├── desktop.md        # Build .exe/.app/.deb
 │   └── mobile.md         # Build .ipa/.apk
 ├── api/                  # Auto-generated API reference
-│   ├── audonomy_cli.md   # CLI command reference
+│   ├── inno_cli.md   # CLI command reference
 │   ├── framework_api.md  # Rust API reference
 │   └── agent_api.md      # Agent runtime API
 ├── examples/             # Real-world application showcases
@@ -437,15 +437,15 @@ docs/
 └── faq.md                # Frequently asked questions
 ```
 
-**Showcase applications (built with Audonomy, hosted on Netlify):**
+**Showcase applications (built with Innoframework, hosted on Netlify):**
 
 | Showcase | Description | Platform | Live demo |
 |---|---|---|---|
-| Audonomy Finance | Personal finance app (income/expense, AI reminders) | Web + Mobile | netlify.app |
-| Audonomy ERP | ERP module (HR, FICO, SD, MM, MFG) | Web | netlify.app |
-| Audonomy Code Agent | AI code assistant (refactor, generate, review) | Desktop | download |
-| Audonomy Desktop Locker | File/folder locker (like InnologyLock) | Desktop | download |
-| Audonomy CRM | Customer relationship management | Web + Mobile | netlify.app |
+| Innoframework Finance | Personal finance app (income/expense, AI reminders) | Web + Mobile | netlify.app |
+| Innoframework ERP | ERP module (HR, FICO, SD, MM, MFG) | Web | netlify.app |
+| Innoframework Code Agent | AI code assistant (refactor, generate, review) | Desktop | download |
+| Innoframework Desktop Locker | File/folder locker (like InnologyLock) | Desktop | download |
+| Innoframework CRM | Customer relationship management | Web + Mobile | netlify.app |
 
 ### 7.2 Documentation Hosting
 
@@ -457,7 +457,7 @@ docs/
 
 ---
 
-## 8. What Audonomy Is NOT
+## 8. What Innoframework Is NOT
 
 | Not this | Because |
 |---|---|
@@ -478,7 +478,7 @@ User writes Rust code (src/app.rs)
          │
          ▼
 ┌─────────────────────────────────────────┐
-│  Audonomy Build Pipeline                │
+│  Innoframework Build Pipeline                │
 │                                         │
 │  1. Parse & type-check (Rust compiler)  │
 │  2. Security scan (secret boundary)     │
@@ -497,10 +497,10 @@ User writes Rust code (src/app.rs)
 
 **Build commands:**
 ```bash
-audonomy build web      # WASM output for Netlify/Vercel
-audonomy build desktop  # .exe/.app/.deb
-audonomy build mobile   # .ipa/.apk
-audonomy build all      # All targets
+inno build web      # WASM output for Netlify/Vercel
+inno build desktop  # .exe/.app/.deb
+inno build mobile   # .ipa/.apk
+inno build all      # All targets
 ```
 
 ---
@@ -511,7 +511,7 @@ audonomy build all      # All targets
 2. **UI framework:** Dioxus 0.7 (signal-based, RSX, cross-platform). Alternative: native Rust GUI (egui, iced) — but Dioxus has web support.
 3. **Database:** SQLite local-first (desktop/mobile), Firestore/Postgres optional (web/cloud).
 4. **Auth:** Built-in session auth (HMAC-signed tokens, like v1 design) + optional Firebase/Supabase integration.
-5. **Package registry:** Audonomy modules distributed via `innologybd.com/modules` (not npm).
+5. **Package registry:** Innoframework modules distributed via `innologybd.com/modules` (not npm).
 6. **v1 scope:** Single codebase → web + desktop. Mobile in v1.1. AI agents in v1.2.
 
 ---
@@ -521,7 +521,7 @@ audonomy build all      # All targets
 | Step | Task | Deliverable |
 |---|---|---|
 | 1 | Define Rust crate structure (core, ui, agent, auth, build) | Cargo workspace |
-| 2 | Build CLI binary (`audonomy init`, `audonomy build`) | Working CLI |
+| 2 | Build CLI binary (`inno init`, `inno build`) | Working CLI |
 | 3 | Implement signal-based reactivity | Reactive UI runtime |
 | 4 | Build core component library (Button, Input, Dialog, etc.) | Usable UI kit |
 | 5 | Implement auth guard + CSP + secret boundary | Secure by default |
