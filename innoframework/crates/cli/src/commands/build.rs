@@ -78,13 +78,43 @@ fn check_secret_boundary(manifest: &str) -> Result<(), InnoframeworkCliError> {
     Ok(())
 }
 
-/// Build for the web target (WASM + CSP header).
+/// Build for the web target: a real `dx build --platform web --release`
+/// (Dioxus 0.7 → WASM), then the CSP header is written beside its output.
 fn build_web(_manifest: &str) -> Result<(), InnoframeworkCliError> {
-    println!("inno build web: compiling to WASM...");
+    println!("inno build web: running `dx build --platform web --release`...");
 
-    // Generate CSP header file
-    let csp_header = generate_csp_header();
-    std::fs::write("dist/csp-header.txt", csp_header).map_err(|e| {
+    let status = std::process::Command::new("dx")
+        .args(["build", "--platform", "web", "--release"])
+        .status()
+        .map_err(|_| {
+            crate::errors::InnoframeworkCliError::new(
+                crate::errors::CliErrorCode::TemplateMissing,
+                "the `dx` tool was not found",
+                "install it with `cargo install dioxus-cli --version 0.7.10`",
+                Some("https://innoframework.dev/docs/cli/build#web-toolchain"),
+            )
+        })?;
+    if !status.success() {
+        return Err(crate::errors::InnoframeworkCliError::new(
+            crate::errors::CliErrorCode::TemplateMissing,
+            "`dx build --platform web` failed",
+            "fix the compile errors above, then re-run `inno build web`",
+            Some("https://innoframework.dev/docs/cli/build#web-build-failed"),
+        ));
+    }
+
+    // Public directory produced by dx for the web platform.
+    let public = std::path::Path::new("target/dx/").to_path_buf();
+    let out_dir = find_dx_public_dir(&public).ok_or_else(|| {
+        crate::errors::InnoframeworkCliError::new(
+            crate::errors::CliErrorCode::TemplateMissing,
+            "dx finished but its web output directory was not found under target/dx",
+            "check the `dx build` output above",
+            None,
+        )
+    })?;
+
+    std::fs::write(out_dir.join("csp-header.txt"), generate_csp_header()).map_err(|e| {
         crate::errors::InnoframeworkCliError::new(
             crate::errors::CliErrorCode::TemplateMissing,
             format!("cannot write CSP header: {e}"),
@@ -93,47 +123,26 @@ fn build_web(_manifest: &str) -> Result<(), InnoframeworkCliError> {
         )
     })?;
 
-    // Create dist directory structure
-    std::fs::create_dir_all("dist/_static").map_err(|e| {
-        crate::errors::InnoframeworkCliError::new(
-            crate::errors::CliErrorCode::TemplateMissing,
-            format!("cannot create dist directory: {e}"),
-            "check disk space and permissions",
-            None,
-        )
-    })?;
-
-    // Write a minimal index.html
-    let index_html = r#"<!DOCTYPE html>
-<html>
-  <head>
-    <meta charset="utf-8">
-    <title>Innoframework App</title>
-    <link rel="modulepreload" href="/_static/app.wasm">
-  </head>
-  <body>
-    <div id="app"></div>
-    <script type="module">
-      import init from "/_static/app.wasm";
-      init();
-    </script>
-  </body>
-</html>"#;
-    std::fs::write("dist/index.html", index_html).map_err(|e| {
-        crate::errors::InnoframeworkCliError::new(
-            crate::errors::CliErrorCode::TemplateMissing,
-            format!("cannot write index.html: {e}"),
-            "check disk space and permissions",
-            None,
-        )
-    })?;
-
-    println!("inno build web: output written to dist/");
-    println!("  - dist/index.html");
-    println!("  - dist/csp-header.txt");
-    println!("  - dist/_static/ (WASM output goes here)");
-    println!("\nCSP header generated. Serve dist/ with the CSP header to satisfy TR-4.1/TR-3.3.");
+    println!("inno build web: output in {}", out_dir.display());
+    println!("  - index.html and WASM bundle (from dx)");
+    println!("  - csp-header.txt (serve with this header)");
     Ok(())
+}
+
+/// Locate the `public` directory dx writes for the web platform.
+///
+/// dx 0.7 writes `target/dx/<app>/release/web/public`. The app directory is
+/// not known in advance, so every `<app>` candidate is checked for
+/// `index.html`.
+fn find_dx_public_dir(root: &std::path::Path) -> Option<std::path::PathBuf> {
+    let entries = std::fs::read_dir(root).ok()?;
+    for entry in entries.flatten() {
+        let candidate = entry.path().join("release").join("web").join("public");
+        if candidate.join("index.html").exists() {
+            return Some(candidate);
+        }
+    }
+    None
 }
 
 /// Build for the desktop target.

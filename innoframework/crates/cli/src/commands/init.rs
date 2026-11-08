@@ -131,14 +131,16 @@ pub fn run(name: Option<String>, non_interactive: bool) -> Result<(), Innoframew
     // Show the config diff before writing (TR-2.2).
     show_config_diff(&answers)?;
 
-    // Confirm before writing.
-    print!("Write project files? [y/N]: ");
-    io::stdout().flush().map_err(io_error)?;
-    let mut confirm = String::new();
-    io::stdin().read_line(&mut confirm).map_err(io_error)?;
-    if !confirm.trim().eq_ignore_ascii_case("y") {
-        println!("Aborted.");
-        return Ok(());
+    // Confirm before writing. Non-interactive mode (-y) skips the prompt.
+    if !non_interactive {
+        print!("Write project files? [y/N]: ");
+        io::stdout().flush().map_err(io_error)?;
+        let mut confirm = String::new();
+        io::stdin().read_line(&mut confirm).map_err(io_error)?;
+        if !confirm.trim().eq_ignore_ascii_case("y") {
+            println!("Aborted.");
+            return Ok(());
+        }
     }
 
     write_project_files(&answers)?;
@@ -378,7 +380,7 @@ method = "{}"
 fn generate_cargo_toml(answers: &WizardAnswers) -> String {
     let has_web = answers.platforms.contains(&Platform::Web);
     let web_deps = if has_web {
-        "dioxus = { version = \"0.7\", features = [\"web\"] }\ndioxus-router = \"0.6\"\n"
+        "dioxus = { version = \"0.7\", features = [\"web\"] }\n"
     } else {
         ""
     };
