@@ -202,6 +202,168 @@ pub fn Stack(children: Element, #[props(default)] gap: String) -> Element {
 }
 
 #[component]
+pub fn RadioGroup(
+    name: String,
+    legend: String,
+    options: Vec<(String, String)>,
+    #[props(default)] selected: String,
+) -> Element {
+    rsx! {
+        fieldset { class: "inno-radio-group",
+            legend { "{legend}" }
+            for (value , label) in options {
+                div { class: "inno-radio",
+                    input {
+                        id: "{name}-{value}",
+                        r#type: "radio",
+                        name: "{name}",
+                        value: "{value}",
+                        checked: value == selected,
+                    }
+                    label { r#for: "{name}-{value}", "{label}" }
+                }
+            }
+        }
+    }
+}
+
+#[component]
+pub fn Dialog(
+    id: String,
+    title: String,
+    #[props(default)] open: bool,
+    children: Element,
+) -> Element {
+    rsx! {
+        div {
+            id: "{id}",
+            class: "inno-dialog",
+            role: "dialog",
+            "aria-modal": "true",
+            "aria-labelledby": "{id}-title",
+            "aria-hidden": if open { "false" } else { "true" },
+            div { class: "inno-dialog__panel",
+                h2 { id: "{id}-title", "{title}" }
+                div { class: "inno-dialog__body", {children} }
+                button { r#type: "button", class: "inno-button", "aria-label": "Close dialog", "Close" }
+            }
+        }
+    }
+}
+
+#[component]
+pub fn Popover(
+    id: String,
+    trigger_label: String,
+    #[props(default)] open: bool,
+    children: Element,
+) -> Element {
+    rsx! {
+        div { class: "inno-popover",
+            button {
+                r#type: "button",
+                class: "inno-button",
+                "aria-haspopup": "dialog",
+                "aria-expanded": if open { "true" } else { "false" },
+                "aria-controls": "{id}",
+                "{trigger_label}"
+            }
+            div { id: "{id}", class: "inno-popover__panel", role: "dialog", hidden: !open, {children} }
+        }
+    }
+}
+
+#[component]
+pub fn Tooltip(id: String, label: String, children: Element) -> Element {
+    rsx! {
+        span { class: "inno-tooltip-wrap",
+            span { "aria-describedby": "{id}", tabindex: "0", {children} }
+            span { id: "{id}", role: "tooltip", class: "inno-tooltip", "{label}" }
+        }
+    }
+}
+
+#[component]
+pub fn Tabs(
+    id: String,
+    tabs: Vec<(String, String)>,
+    #[props(default)] selected: String,
+) -> Element {
+    rsx! {
+        div { class: "inno-tabs",
+            div { role: "tablist", "aria-label": "Tabs",
+                for (value , label) in tabs.iter() {
+                    button {
+                        id: "{id}-tab-{value}",
+                        r#type: "button",
+                        role: "tab",
+                        "aria-selected": if value == &selected { "true" } else { "false" },
+                        "aria-controls": "{id}-panel-{value}",
+                        tabindex: if value == &selected { "0" } else { "-1" },
+                        class: "inno-tab",
+                        "{label}"
+                    }
+                }
+            }
+            for (value , label) in tabs {
+                div {
+                    id: "{id}-panel-{value}",
+                    role: "tabpanel",
+                    "aria-labelledby": "{id}-tab-{value}",
+                    hidden: value != selected,
+                    class: "inno-tabpanel",
+                    "{label} content"
+                }
+            }
+        }
+    }
+}
+
+#[component]
+pub fn Table(caption: String, headers: Vec<String>, rows: Vec<Vec<String>>) -> Element {
+    rsx! {
+        table { class: "inno-table",
+            caption { "{caption}" }
+            thead { tr { for h in headers { th { scope: "col", "{h}" } } } }
+            tbody {
+                for row in rows {
+                    tr { for cell in row { td { "{cell}" } } }
+                }
+            }
+        }
+    }
+}
+
+#[component]
+pub fn Toast(
+    message: String,
+    #[props(default)] tone: String,
+    #[props(default)] open: bool,
+) -> Element {
+    let kind = if tone.is_empty() { "info".into() } else { tone };
+    if !open {
+        return rsx! { div { class: "inno-toast-region", "aria-live": "polite", "aria-atomic": "true" } };
+    }
+    rsx! {
+        div { class: "inno-toast-region", "aria-live": "polite", "aria-atomic": "true",
+            div { class: "inno-toast inno-toast--{kind}", role: "status", "{message}" }
+        }
+    }
+}
+
+#[component]
+pub fn Form(children: Element, #[props(default)] labelled_by: String) -> Element {
+    rsx! {
+        form {
+            class: "inno-form",
+            novalidate: false,
+            "aria-labelledby": if labelled_by.is_empty() { None } else { Some(labelled_by) },
+            {children}
+        }
+    }
+}
+
+#[component]
 pub fn Container(children: Element) -> Element {
     rsx! { div { class: "inno-container", {children} } }
 }

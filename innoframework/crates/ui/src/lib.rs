@@ -4,14 +4,15 @@
 //! and an initial accessible component set. Components render via Dioxus 0.7
 //! `rsx!` and are snapshot-tested with `dioxus-ssr` (TR-4.x/visual baselines).
 
+pub mod a11y;
 pub mod components;
 pub mod layout;
 pub mod theme;
 pub mod tokens;
 
 pub use components::{
-    Alert, Badge, Button, Card, Checkbox, Container, Divider, Heading, Input, Link, Select, Stack,
-    Switch, Text, TextArea,
+    Alert, Badge, Button, Card, Checkbox, Container, Dialog, Divider, Form, Heading, Input, Link,
+    Popover, RadioGroup, Select, Stack, Switch, Table, Tabs, Text, TextArea, Toast, Tooltip,
 };
 pub use layout::{AppShell, FormLayout, PageLayout};
 pub use theme::{Theme, ThemeName};

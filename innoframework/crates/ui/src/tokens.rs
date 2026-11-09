@@ -11,6 +11,7 @@ pub struct Tokens {
     pub radius: RadiusTokens,
     pub type_scale: TypeTokens,
     pub focus: FocusTokens,
+    pub motion: MotionTokens,
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize)]
@@ -65,6 +66,17 @@ pub struct FocusTokens {
     pub ring_offset: &'static str,
 }
 
+/// TR-4.4: declarative motion tokens. Consumers must honor
+/// `prefers-reduced-motion: reduce` by disabling non-essential motion.
+#[derive(Debug, Clone, PartialEq, Serialize)]
+pub struct MotionTokens {
+    pub duration_fast: &'static str,
+    pub duration_normal: &'static str,
+    pub duration_slow: &'static str,
+    pub easing_standard: &'static str,
+    pub easing_emphasized: &'static str,
+}
+
 impl Tokens {
     pub const fn web() -> Self {
         Self {
@@ -109,6 +121,13 @@ impl Tokens {
             focus: FocusTokens {
                 ring_width: "2px",
                 ring_offset: "2px",
+            },
+            motion: MotionTokens {
+                duration_fast: "100ms",
+                duration_normal: "200ms",
+                duration_slow: "320ms",
+                easing_standard: "cubic-bezier(0.2, 0, 0, 1)",
+                easing_emphasized: "cubic-bezier(0.2, 0, 0, 1.2)",
             },
         }
     }
@@ -157,13 +176,21 @@ impl Tokens {
                 ring_width: "2px",
                 ring_offset: "1px",
             },
+            motion: MotionTokens {
+                duration_fast: "83ms",
+                duration_normal: "167ms",
+                duration_slow: "250ms",
+                easing_standard: "cubic-bezier(0, 0, 0, 1)",
+                easing_emphasized: "cubic-bezier(0.1, 0.9, 0.2, 1)",
+            },
         }
     }
 
     /// Serialize tokens to CSS custom properties for `:root` injection.
+    /// Includes a `prefers-reduced-motion: reduce` override (TR-4.4).
     pub fn to_css_vars(&self) -> String {
         format!(
-            ":root{{--inno-bg:{};--inno-bg-elevated:{};--inno-fg:{};--inno-fg-muted:{};--inno-border:{};--inno-primary:{};--inno-primary-fg:{};--inno-danger:{};--inno-danger-fg:{};--inno-success:{};--inno-warning:{};--inno-focus-ring:{};--inno-space-xs:{};--inno-space-sm:{};--inno-space-md:{};--inno-space-lg:{};--inno-space-xl:{};--inno-radius-sm:{};--inno-radius-md:{};--inno-radius-lg:{};--inno-font-sans:{};--inno-size-sm:{};--inno-size-md:{};--inno-size-lg:{};--inno-line-height:{};--inno-focus-width:{};--inno-focus-offset:{}}}",
+            ":root{{--inno-bg:{};--inno-bg-elevated:{};--inno-fg:{};--inno-fg-muted:{};--inno-border:{};--inno-primary:{};--inno-primary-fg:{};--inno-danger:{};--inno-danger-fg:{};--inno-success:{};--inno-warning:{};--inno-focus-ring:{};--inno-space-xs:{};--inno-space-sm:{};--inno-space-md:{};--inno-space-lg:{};--inno-space-xl:{};--inno-radius-sm:{};--inno-radius-md:{};--inno-radius-lg:{};--inno-font-sans:{};--inno-size-sm:{};--inno-size-md:{};--inno-size-lg:{};--inno-line-height:{};--inno-focus-width:{};--inno-focus-offset:{};--inno-duration-fast:{};--inno-duration-normal:{};--inno-duration-slow:{};--inno-ease-standard:{};--inno-ease-emphasized:{}}}@media (prefers-reduced-motion: reduce){{:root{{--inno-duration-fast:0ms;--inno-duration-normal:0ms;--inno-duration-slow:0ms;--inno-ease-standard:linear;--inno-ease-emphasized:linear}}}}",
             self.color.bg,
             self.color.bg_elevated,
             self.color.fg,
@@ -191,6 +218,11 @@ impl Tokens {
             self.type_scale.line_height,
             self.focus.ring_width,
             self.focus.ring_offset,
+            self.motion.duration_fast,
+            self.motion.duration_normal,
+            self.motion.duration_slow,
+            self.motion.easing_standard,
+            self.motion.easing_emphasized,
         )
     }
 }
@@ -209,5 +241,13 @@ mod tests {
     #[test]
     fn windows_theme_differs_from_web_primary() {
         assert_ne!(Tokens::web().color.primary, Tokens::windows().color.primary);
+    }
+
+    #[test]
+    fn tr_4_4_motion_tokens_and_reduced_motion_media_query_present() {
+        let css = Tokens::web().to_css_vars();
+        assert!(css.contains("--inno-duration-normal"));
+        assert!(css.contains("prefers-reduced-motion: reduce"));
+        assert!(css.contains("--inno-duration-normal:0ms"));
     }
 }
