@@ -1,0 +1,7 @@
+error: rpc route must declare a guard: #[rpc(guard = AdminGuard)]
+ --> tests/ui/missing_guard.rs:2:1
+  |
+2 | #[innoframework_rpc_macro::rpc]
+  | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  |
+  = note: this error originates in the attribute macro `innoframework_rpc_macro::rpc` (in Nightly builds, run with -Z macro-backtrace for more info)

@@ -4,8 +4,10 @@
 //! The `#[rpc(guard = ...)]` proc-macro (ADR-14) requires a guard, so
 //! unguarded routes are unrepresentable by the type system.
 //!
-//! These tests verify the positive direction: a guarded route implements
-//! `Guarded` and `RpcRoute`, and can be registered.
+//! Positive direction here: a guarded route implements `Guarded`/`RpcRoute`
+//! and can be registered. The negative (unguarded route fails to compile) is
+//! enforced by `innoframework-rpc-macro` trybuild test `compile_fail`
+//! (`crates/rpc-macro/tests/ui/missing_guard.rs`).
 
 use innoframework_rpc::{register_route, AuthError, Guarded, RpcRoute};
 use innoframework_rpc_macro::rpc;

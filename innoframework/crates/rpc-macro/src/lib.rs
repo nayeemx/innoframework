@@ -35,21 +35,31 @@ fn to_upper_camel_case(s: &str) -> String {
 /// enforcing that every RPC route has an auth guard at compile time.
 #[proc_macro_attribute]
 pub fn rpc(attr: TokenStream, item: TokenStream) -> TokenStream {
-    let _attr = parse_macro_input!(attr as Meta);
     let input = parse_macro_input!(item as ItemFn);
 
-    // Validate that the attribute has a `guard = ...` argument.
-    let _guard_expr = match &_attr {
-        syn::Meta::NameValue(nv) if nv.path.is_ident("guard") => &nv.value,
-        _ => {
-            return syn::Error::new_spanned(
-                &_attr,
-                "rpc route must declare a guard: #[rpc(guard = AdminGuard)]",
-            )
-            .to_compile_error()
-            .into();
-        }
+    let missing = || {
+        syn::Error::new(
+            proc_macro2::Span::call_site(),
+            "rpc route must declare a guard: #[rpc(guard = AdminGuard)]",
+        )
+        .to_compile_error()
+        .into()
     };
+
+    if attr.is_empty() {
+        return missing();
+    }
+
+    let meta = match syn::parse::<Meta>(attr) {
+        Ok(m) => m,
+        Err(_) => return missing(),
+    };
+
+    // Validate that the attribute has a `guard = ...` argument.
+    match &meta {
+        syn::Meta::NameValue(nv) if nv.path.is_ident("guard") => {}
+        _ => return missing(),
+    }
 
     let name = &input.sig.ident;
     let route_name = Ident::new(&to_upper_camel_case(&name.to_string()), name.span());

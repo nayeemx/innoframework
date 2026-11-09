@@ -26,4 +26,3 @@ clap = { version = "4", features = ["derive"] }
 proc-macro2 = "1"
 quote = "1"
 syn = { version = "2", features = ["full", "parsing"] }
-trybuild = "3"
