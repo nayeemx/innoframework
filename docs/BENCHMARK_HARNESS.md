@@ -32,12 +32,12 @@ Source of truth: ARCHITECTURE_PLAN.md §6.
 
 | Metric | Budget | Method | Phase |
 |---|---|---|---|
-| RPC round trip, localhost, small JSON, p95 | ≤ 10 ms | Rust load script against running server | P2 |
+| RPC round trip, localhost, small JSON, p95 | <= 10 ms | Rust load script against running server | P2 |
 | Session token verify, one call | recorded baseline, no budget yet | criterion bench in `innoframework-core` | P0 |
-| Web FCP, fixture, 4G throttle | ≤ 1.5 s | Lighthouse CI on fixture | P3 |
-| Web bundle gzipped vs Vite React fixture | ≤ 2× fixture | build size script | P3 |
-| Desktop cold start to first paint | ≤ 1.5 s | scripted timing, reference Windows VM | P4 |
-| Desktop idle RSS | ≤ 150 MB | process metric | P4 |
+| Web FCP, fixture, 4G throttle | <= 1.5 s | Lighthouse CI on fixture | P3 |
+| Web bundle gzipped vs Vite React fixture | <= 2x fixture | build size script | P3 |
+| Desktop cold start to first paint | <= 1.5 s | scripted timing, reference Windows VM | P4 |
+| Desktop idle RSS | <= 150 MB | process metric | P4 |
 | Mobile cold start and frame time | per P9 gate | device lab | P9 |
 
 ## 4. Reference hardware
@@ -54,9 +54,9 @@ Two documents give different numbers for the same metric:
 
 | Metric | ARCHITECTURE_PLAN.md §6 | INNOFRAMEWORK_ARCHITECTURE.md §2.3 |
 |---|---|---|
-| Desktop cold start | ≤ 1.5 s | < 500 ms |
-| Desktop idle RSS | ≤ 150 MB | < 50 MB |
-| Web bundle | ≤ 2× Vite fixture | < 5 MB gzipped |
+| Desktop cold start | <= 1.5 s | < 500 ms |
+| Desktop idle RSS | <= 150 MB | < 50 MB |
+| Web bundle | <= 2x Vite fixture | < 5 MB gzipped |
 
 This harness uses the ARCHITECTURE_PLAN.md column because that document defines
 the phase gates. The owner must confirm which set applies before P4.
