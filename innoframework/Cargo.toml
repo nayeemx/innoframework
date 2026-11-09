@@ -1,6 +1,6 @@
 [workspace]
 resolver = "2"
-members = ["crates/core", "crates/rpc", "crates/rpc-macro", "crates/cli"]
+members = ["crates/core", "crates/rpc", "crates/rpc-macro", "crates/cli", "crates/ui"]
 
 [workspace.package]
 version = "0.1.0"
@@ -26,3 +26,5 @@ clap = { version = "4", features = ["derive"] }
 proc-macro2 = "1"
 quote = "1"
 syn = { version = "2", features = ["full", "parsing"] }
+dioxus = { version = "0.7", default-features = false, features = ["macro", "html", "signals"] }
+dioxus-ssr = "0.7"
