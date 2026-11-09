@@ -43,6 +43,7 @@ pub fn Input(
     #[props(default)] required: bool,
     #[props(default)] invalid: bool,
     #[props(default)] described_by: String,
+    #[props(default)] autocomplete: String,
 ) -> Element {
     let ty = if input_type.is_empty() {
         "text".to_string()
@@ -58,6 +59,7 @@ pub fn Input(
                 class: "inno-input",
                 r#type: "{ty}",
                 value: "{value}",
+                autocomplete: if autocomplete.is_empty() { None } else { Some(autocomplete) },
                 required: required,
                 "aria-required": if required { "true" } else { "false" },
                 "aria-invalid": if invalid { "true" } else { "false" },
@@ -166,13 +168,12 @@ pub fn Card(title: String, children: Element) -> Element {
 
 #[component]
 pub fn Heading(text: String, #[props(default = 1)] level: u8) -> Element {
-    let tag = match level {
-        2 => "h2",
-        3 => "h3",
-        4 => "h4",
-        _ => "h1",
-    };
-    rsx! { h1 { class: "inno-heading inno-heading--{level}", "data-tag": "{tag}", "{text}" } }
+    match level {
+        2 => rsx! { h2 { class: "inno-heading inno-heading--2", "{text}" } },
+        3 => rsx! { h3 { class: "inno-heading inno-heading--3", "{text}" } },
+        4 => rsx! { h4 { class: "inno-heading inno-heading--4", "{text}" } },
+        _ => rsx! { h1 { class: "inno-heading inno-heading--1", "{text}" } },
+    }
 }
 
 #[component]
@@ -242,6 +243,7 @@ pub fn Dialog(
             "aria-modal": "true",
             "aria-labelledby": "{id}-title",
             "aria-hidden": if open { "false" } else { "true" },
+            hidden: !open,
             div { class: "inno-dialog__panel",
                 h2 { id: "{id}-title", "{title}" }
                 div { class: "inno-dialog__body", {children} }

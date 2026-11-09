@@ -68,6 +68,26 @@ fn alert_uses_live_region_role() {
 }
 
 #[test]
+fn dialog_reflects_open_state() {
+    fn open_app() -> Element {
+        rsx! { Dialog { id: "d1".to_string(), title: "Confirm".to_string(), open: true, "Body" } }
+    }
+    let html = render(open_app);
+    assert!(html.contains("aria-hidden=\"false\"") || html.contains("aria-hidden='false'"));
+    assert!(!html.contains(" hidden"));
+}
+
+#[test]
+fn heading_renders_requested_level() {
+    fn app() -> Element {
+        rsx! { Heading { text: "Sub".to_string(), level: 2 } }
+    }
+    let html = render(app);
+    assert!(html.contains("<h2"));
+    assert!(html.contains("inno-heading--2"));
+}
+
+#[test]
 fn form_layout_has_labelled_region_and_submit() {
     fn app() -> Element {
         rsx! {

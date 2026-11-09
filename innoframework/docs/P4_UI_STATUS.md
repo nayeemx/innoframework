@@ -4,14 +4,15 @@ Status: **in progress**. Core scaffold + TR-4.1 catalog semantics, TR-4.2 token 
 
 ## Delivered
 - `innoframework-ui` crate: token system, Web + Windows themes (CSS vars), 3 layouts (`AppShell`, `PageLayout`, `FormLayout`), component set including TR-4.1 catalog primitives: `Button, Input, TextArea, Select, Checkbox, RadioGroup, Switch, Dialog, Popover, Tooltip, Tabs, Table, Form, Toast, Card` plus `Badge, Heading, Text, Link, Divider, Stack, Container, Alert`.
-- Motion tokens + `@media (prefers-reduced-motion: reduce)` override (TR-4.4).
-- TR-4.5 rule checks: `MIN_CONTRAST_NORMAL=4.5`, `MIN_TOUCH_TARGET_PX=44`, Web/Windows text contrast checks (`src/a11y.rs`).
-- `inno init` web template wiring (CSP-safe): generates `assets/inno-ui.css` (theme vars + responsive/baseline styles, breakpoints 360/768/1280) and loads it as an external stylesheet via Dioxus `asset!`/`document::Stylesheet` (no inline style attribute requirement). `inno build web` CSP header unchanged and compatible with external self-hosted styles.
-- Axe-core + Playwright snapshot **spike** (not run by Rust CI): `tools/ui-a11y-snapshots/` (3 breakpoint projects, axe WCAG 2.x A/AA critical/serious gate, screenshot baselines). Requires Node/pinned toolchain and a served fixture.
+- A11y/behavior hardening (SSR semantics): `Heading` renders real `h1-h4`; `Dialog` honors `open` with `hidden`+`aria-hidden`; `Input` supports `autocomplete`; focus/touch-target/reduced-motion baselines in shared CSS.
+- Motion tokens + `@media (prefers-reduced-motion: reduce)` override (TR-4.4). TR-4.5 rule checks: `MIN_CONTRAST_NORMAL=4.5`, `MIN_TOUCH_TARGET_PX=44`, Web/Windows text contrast checks (`src/a11y.rs`).
+- `inno init` web template (CSP-safe): generates `assets/inno-ui.css` from `innoframework_ui::css` (theme vars + responsive/baseline styles, breakpoints 360/768/1280) and loads it via `asset!("/assets/inno-ui.css")` + `document::Stylesheet`. `inno build web` CSP header unchanged/compatible with external self-hosted styles.
+- Axe-core + Playwright snapshot **spike** (not run by Rust CI): `tools/ui-a11y-snapshots/` (3 breakpoint projects, axe WCAG 2.x A/AA critical/serious gate, screenshot baselines). Requires Node/pinned toolchain and a served fixture; see README for `inno init`/`inno build web`/`inno dev` fixture workflow.
 
 ## Evidence (automated)
-- `cargo test -p innoframework-ui`: **25 tests passing** (6 unit in `a11y/tokens`, 8 `components`, 8 `a11y_layout`, 3 `tokens`).
-- `cargo clippy -p innoframework-ui --all-targets -D warnings`: clean.
+- `cargo test -p innoframework-ui`: **28 tests passing** (7 unit in `a11y/css/tokens`, 10 `components`, 8 `a11y_layout`, 3 `tokens`).
+- `cargo test --workspace`: **114 tests passing** (workspace total at time of update).
+- `cargo clippy --workspace --all-targets -D warnings`: clean.
 - CI runs `cargo test --workspace` / clippy/fmt/deny/audit via `innoframework-ci`.
 
 ## TR mapping
