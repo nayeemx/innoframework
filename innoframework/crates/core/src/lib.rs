@@ -12,12 +12,14 @@ pub mod error;
 pub mod manifest;
 pub mod manifest_toml;
 pub mod secret;
+pub mod storage;
 pub mod tool;
 pub mod validation;
 
 pub use error::{ErrorCode, InnoframeworkError};
 pub use manifest::Manifest;
 pub use manifest_toml::parse_manifest;
+pub use storage::{validate_storage_id, Storage, STORAGE_ERROR};
 pub use validation::Validate;
 
 use base64::engine::general_purpose::URL_SAFE_NO_PAD as B64;
