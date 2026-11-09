@@ -1,0 +1,19 @@
+{
+  "name": "innoframework-ui-a11y-snapshots",
+  "private": true,
+  "version": "0.1.0",
+  "description": "P4 spike: axe-core + Playwright visual snapshots (3 breakpoints). Not run in Rust CI by default.",
+  "engines": {
+    "node": ">=20 <23"
+  },
+  "packageManager": "pnpm@10.0.0",
+  "scripts": {
+    "test": "playwright test",
+    "test:update": "playwright test --update-snapshots",
+    "test:headed": "playwright test --headed"
+  },
+  "devDependencies": {
+    "@axe-core/playwright": "^4.10.0",
+    "@playwright/test": "^1.52.0"
+  }
+}

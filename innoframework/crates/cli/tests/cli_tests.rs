@@ -111,6 +111,14 @@ fn init_defaults_render_web_dioxus07_and_manifest() {
 
     let main_rs = init::render_main_rs(&answers);
     assert!(main_rs.contains("LaunchBuilder::web().launch(app)"));
+    assert!(main_rs.contains("asset!(\"/assets/inno-ui.css\")"));
+    assert!(main_rs.contains("document::Stylesheet"));
+
+    let css = init::render_ui_css(&answers);
+    assert!(css.contains("--inno-primary"));
+    assert!(css.contains("prefers-reduced-motion: reduce"));
+    assert!(css.contains("@media (min-width: 768px)"));
+    assert!(css.contains("@media (min-width: 1280px)"));
 }
 
 #[test]

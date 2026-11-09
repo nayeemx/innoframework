@@ -5,6 +5,7 @@
 //! (TR-2.2).
 
 use crate::errors::{CliErrorCode, InnoframeworkCliError};
+use innoframework_ui::theme::Theme;
 use std::fs;
 use std::io::{self, Write};
 
@@ -335,6 +336,30 @@ fn write_project_files(answers: &WizardAnswers) -> Result<(), InnoframeworkCliEr
         )
     })?;
 
+    if answers.platforms.contains(&Platform::Web) {
+        let assets_dir = format!("{dir}/assets");
+        fs::create_dir_all(&assets_dir).map_err(|e| {
+            InnoframeworkCliError::new(
+                CliErrorCode::TemplateMissing,
+                format!("cannot create assets directory: {e}"),
+                "check disk space and permissions",
+                None,
+            )
+        })?;
+        fs::write(
+            format!("{assets_dir}/inno-ui.css"),
+            generate_ui_css(answers),
+        )
+        .map_err(|e| {
+            InnoframeworkCliError::new(
+                CliErrorCode::TemplateMissing,
+                format!("cannot write assets/inno-ui.css: {e}"),
+                "check disk space and permissions",
+                None,
+            )
+        })?;
+    }
+
     Ok(())
 }
 
@@ -394,7 +419,11 @@ edition = "2021"
 [dependencies]
 serde = {{ version = "1", features = ["derive"] }}
 serde_json = "1"
-{web_deps}[[bin]]
+{web_deps}
+[build-dependencies]
+innoframework-ui = "0.1"
+
+[[bin]]
 name = "{}"
 path = "src/main.rs"
 "#,
@@ -408,10 +437,32 @@ fn generate_main_rs(answers: &WizardAnswers) -> String {
     if has_web {
         r#"use dioxus::prelude::*;
 
+static UI_CSS: Asset = asset!("/assets/inno-ui.css");
+
 fn app() -> Element {
     rsx! {
-        h1 { "Welcome to Innoframework" }
-        p { "Your web app is running." }
+        document::Stylesheet { href: UI_CSS }
+        main { class: "inno-page", role: "main",
+            header { class: "inno-page__header",
+                h1 { "Welcome to Innoframework" }
+                p { class: "inno-text inno-text--muted",
+                    "P4 UI kit wired (tokens, Web theme, responsive CSS, CSP-safe external stylesheet)."
+                }
+            }
+            section { class: "inno-page__content",
+                div { class: "inno-card", "aria-label": "Getting started",
+                    div { class: "inno-card__body",
+                        div { class: "inno-field",
+                            label { r#for: "name", "Project name" }
+                            input { id: "name", name: "name", class: "inno-input", r#type: "text", placeholder: "demo" }
+                        }
+                        div { class: "inno-form__actions",
+                            button { r#type: "button", class: "inno-button inno-button--primary", "Continue" }
+                        }
+                    }
+                }
+            }
+        }
     }
 }
 
@@ -423,6 +474,39 @@ fn main() {
     } else {
         "fn main() {\n    println!(\"Innoframework project running.\");\n}\n".to_string()
     }
+}
+
+fn generate_ui_css(_answers: &WizardAnswers) -> String {
+    let web = Theme::web().css();
+    format!(
+        "{web}\n{}",
+        r#"/* Innoframework UI kit (P4 scaffold) - CSP-safe external stylesheet (TR-4.1-4.5 baseline). */
+*,*::before,*::after{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{font-family:var(--inno-font-sans);font-size:var(--inno-size-md);line-height:var(--inno-line-height);color:var(--inno-fg);background:var(--inno-bg)}
+.inno-page{max-width:960px;margin:0 auto;padding:var(--inno-space-lg)}
+.inno-page__header{margin-bottom:var(--inno-space-lg)}
+.inno-page__content{display:grid;gap:var(--inno-space-md)}
+.inno-card{background:var(--inno-bg-elevated);border:1px solid var(--inno-border);border-radius:var(--inno-radius-md);padding:var(--inno-space-lg)}
+.inno-card__body{display:grid;gap:var(--inno-space-md)}
+.inno-field{display:grid;gap:var(--inno-space-xs)}
+.inno-input,.inno-select,.inno-textarea{font:inherit;color:var(--inno-fg);background:var(--inno-bg);border:1px solid var(--inno-border);border-radius:var(--inno-radius-sm);padding:10px 12px;min-height:44px;width:100%}
+.inno-button{font:inherit;font-weight:600;border:1px solid transparent;border-radius:var(--inno-radius-sm);padding:10px 14px;min-height:44px;cursor:pointer}
+.inno-button--primary{background:var(--inno-primary);color:var(--inno-primary-fg)}
+.inno-form__actions{display:flex;gap:var(--inno-space-sm);flex-wrap:wrap}
+.inno-text--muted{color:var(--inno-fg-muted)}
+:focus-visible{outline:var(--inno-focus-width) solid var(--inno-focus-ring);outline-offset:var(--inno-focus-offset)}
+/* TR-4.3 responsive baselines: 360 / 768 / 1280 */
+@media (max-width: 360px){.inno-page{padding:var(--inno-space-sm)}.inno-card{padding:var(--inno-space-md)}}
+@media (min-width: 768px){.inno-page{padding:var(--inno-space-xl)}.inno-page__content{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media (min-width: 1280px){.inno-page{max-width:1200px}.inno-page__content{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media (prefers-reduced-motion: reduce){*{scroll-behavior:auto}}
+"#
+    )
+}
+
+pub fn render_ui_css(answers: &WizardAnswers) -> String {
+    generate_ui_css(answers)
 }
 
 pub fn wizard_defaults(project_name: String) -> WizardAnswers {

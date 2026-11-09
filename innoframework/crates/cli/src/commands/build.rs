@@ -164,7 +164,8 @@ fn build_mobile(_manifest: &str) -> Result<(), InnoframeworkCliError> {
 
 /// Generate a default CSP header (no exception slots).
 pub fn generate_csp_header() -> String {
-    // CSP with no exception slot — overrides must be explicit and listed
-    // in the manifest (ADR-04, SEC-BUILD).
+    // CSP with no exception slot - overrides must be explicit and listed
+    // in the manifest (ADR-04, SEC-BUILD). style-src allows 'unsafe-inline'
+    // for framework/runtime style injection; prefer external CSS (assets/inno-ui.css).
     "Content-Security-Policy: default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'self'; frame-ancestors 'none'; base-uri 'self'; form-action 'self';".to_string()
 }
