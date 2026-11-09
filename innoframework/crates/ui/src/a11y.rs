@@ -39,6 +39,8 @@ pub fn web_text_contrast_ok() -> bool {
     contrast_ratio(t.tokens.color.fg, t.tokens.color.bg).is_some_and(|r| r >= MIN_CONTRAST_NORMAL)
         && contrast_ratio(t.tokens.color.primary_fg, t.tokens.color.primary)
             .is_some_and(|r| r >= MIN_CONTRAST_NORMAL)
+        && contrast_ratio(t.tokens.color.danger_fg, t.tokens.color.danger)
+            .is_some_and(|r| r >= MIN_CONTRAST_NORMAL)
 }
 
 pub fn windows_text_contrast_ok() -> bool {
@@ -46,6 +48,15 @@ pub fn windows_text_contrast_ok() -> bool {
     contrast_ratio(t.tokens.color.fg, t.tokens.color.bg).is_some_and(|r| r >= MIN_CONTRAST_NORMAL)
         && contrast_ratio(t.tokens.color.primary_fg, t.tokens.color.primary)
             .is_some_and(|r| r >= MIN_CONTRAST_NORMAL)
+        && contrast_ratio(t.tokens.color.danger_fg, t.tokens.color.danger)
+            .is_some_and(|r| r >= MIN_CONTRAST_NORMAL)
+}
+
+/// TR-4.5: muted text is checked against the elevated surface (common usage)
+/// and reported separately so callers can decide whether to adjust tokens or
+/// restrict muted text to large/decorative contexts.
+pub fn muted_text_contrast(theme: &Theme) -> Option<f32> {
+    contrast_ratio(theme.tokens.color.fg_muted, theme.tokens.color.bg_elevated)
 }
 
 #[cfg(test)]
@@ -62,5 +73,14 @@ mod tests {
     fn tr_4_5_touch_target_rule_recorded() {
         assert_eq!(MIN_TOUCH_TARGET_PX, 44);
         assert!((MIN_CONTRAST_NORMAL - 4.5).abs() < f32::EPSILON);
+    }
+
+    #[test]
+    fn tr_4_5_muted_contrast_is_measurable() {
+        let web = muted_text_contrast(&Theme::web()).unwrap();
+        let win = muted_text_contrast(&Theme::windows()).unwrap();
+        // Muted text may be below 4.5:1 on some palettes; record it explicitly
+        // rather than silently claiming WCAG AA for body text.
+        assert!(web > 1.0 && win > 1.0);
     }
 }
