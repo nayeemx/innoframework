@@ -2,6 +2,7 @@
 
 use crate::errors::InnoframeworkCliError;
 use crate::BuildTarget;
+use innoframework_core::manifest_toml::parse_manifest;
 
 /// Build for the given target.
 pub fn run(target: BuildTarget) -> Result<(), InnoframeworkCliError> {
@@ -147,10 +148,58 @@ pub fn find_dx_public_dir(root: &std::path::Path) -> Option<std::path::PathBuf> 
 }
 
 /// Build for the desktop target.
-fn build_desktop(_manifest: &str) -> Result<(), InnoframeworkCliError> {
-    println!("inno build desktop: checking capabilities...");
-    println!("Desktop build requires Tauri 2 toolchain (cargo tauri).");
-    println!("Run `cargo tauri build` in this directory to produce the desktop bundle.");
+fn build_desktop(manifest: &str) -> Result<(), InnoframeworkCliError> {
+    let parsed = parse_manifest(manifest).map_err(|e| {
+        InnoframeworkCliError::new(
+            crate::errors::CliErrorCode::BuildNoManifest,
+            format!("cannot parse inno.toml: {e}"),
+            "fix the manifest format and re-run `inno build desktop`",
+            None,
+        )
+    })?;
+
+    // Desktop requires at least the desktop target.
+    if !parsed
+        .targets()
+        .contains(&innoframework_core::build_target::TargetKind::Desktop)
+    {
+        return Err(InnoframeworkCliError::build_desktop_no_target());
+    }
+
+    println!("inno build desktop: generating Tauri 2 project files...");
+
+    // Generate Tauri project files from manifest capabilities.
+    let root = std::path::Path::new(".");
+    crate::commands::tauri::write_tauri_project(
+        root,
+        parsed.name(),
+        parsed.version(),
+        parsed.capabilities(),
+        &generate_csp_header(),
+    )?;
+
+    // Verify cargo tauri is available.
+    let status = std::process::Command::new("cargo")
+        .args(["tauri", "--version"])
+        .output()
+        .map_err(|_| InnoframeworkCliError::build_tauri_not_found())?;
+    if !status.status.success() {
+        return Err(InnoframeworkCliError::build_tauri_not_found());
+    }
+
+    // Run `cargo tauri build` to produce the desktop bundle.
+    println!("inno build desktop: running `cargo tauri build`...");
+    let status = std::process::Command::new("cargo")
+        .args(["tauri", "build"])
+        .status()
+        .map_err(|_| InnoframeworkCliError::build_tauri_not_found())?;
+    if !status.success() {
+        return Err(InnoframeworkCliError::build_tauri_build_failed());
+    }
+
+    println!("inno build desktop: bundle produced by Tauri 2.");
+    println!("  - tauri.conf.json and capability JSONs written to src-tauri/");
+    println!("  - Signing: deferred (ADR-09) — unsigned bundle, see docs for code-signing.");
     Ok(())
 }
 

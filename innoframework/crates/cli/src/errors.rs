@@ -26,6 +26,12 @@ pub enum CliErrorCode {
     TemplateMissing = 3007,
     /// The Rust toolchain is older than the pinned minimum.
     ToolchainTooOld = 3008,
+    /// The `cargo tauri` command was not found.
+    BuildTauriNotFound = 3009,
+    /// The manifest does not declare the desktop target.
+    BuildDesktopNoTarget = 3010,
+    /// `cargo tauri build` failed.
+    BuildTauriBuildFailed = 3011,
 }
 
 /// An actionable error: code, user message, fix sentence, doc link.
@@ -63,6 +69,9 @@ impl InnoframeworkCliError {
             CliErrorCode::BuildUnknownTarget => "AUD-3006",
             CliErrorCode::TemplateMissing => "AUD-3007",
             CliErrorCode::ToolchainTooOld => "AUD-3008",
+            CliErrorCode::BuildTauriNotFound => "AUD-3009",
+            CliErrorCode::BuildDesktopNoTarget => "AUD-3010",
+            CliErrorCode::BuildTauriBuildFailed => "AUD-3011",
         };
         eprintln!("{code_str}: {}", self.message);
         eprintln!("  Fix: {}", self.fix);
@@ -152,6 +161,33 @@ impl InnoframeworkCliError {
             format!("Rust toolchain {found} is older than the required {required}"),
             "install a newer toolchain with `rustup update`",
             Some("https://innoframework.dev/docs/cli#toolchain"),
+        )
+    }
+
+    pub fn build_tauri_not_found() -> Self {
+        Self::new(
+            CliErrorCode::BuildTauriNotFound,
+            "the `cargo tauri` command was not found",
+            "install it with `cargo install tauri-cli --version 2.11.4`",
+            Some("https://innoframework.dev/docs/cli/build#desktop-toolchain"),
+        )
+    }
+
+    pub fn build_desktop_no_target() -> Self {
+        Self::new(
+            CliErrorCode::BuildDesktopNoTarget,
+            "manifest does not declare the desktop target",
+            "add \"desktop\" to the targets list in inno.toml",
+            None,
+        )
+    }
+
+    pub fn build_tauri_build_failed() -> Self {
+        Self::new(
+            CliErrorCode::BuildTauriBuildFailed,
+            "`cargo tauri build` failed",
+            "fix the compile errors above, then re-run `inno build desktop`",
+            Some("https://innoframework.dev/docs/cli/build#desktop-build-failed"),
         )
     }
 }

@@ -1105,6 +1105,7 @@ name = "innoframework-cli"
 version = "0.1.0"
 dependencies = [
  "clap",
+ "innoframework-core",
  "innoframework-ui",
  "serde",
  "serde_json",
