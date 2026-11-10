@@ -1,0 +1,38 @@
+# Showcase #3 — Innoframework Mobile Demo
+#
+# Demonstrates: Tauri 2 mobile build, mobile capabilities (keychain, dialog),
+# signing identity requirement, CSP presets.
+
+[project]
+name = "showcase3"
+version = "1.0.0"
+targets = ["mobile"]
+
+[data]
+backend = "sqlite-dev"
+
+[ai]
+provider = "none"
+
+[auth]
+method = "session"
+
+[build]
+signing-identity = "showcase3-dev-cert"
+mobile-target = "android"
+
+[[capabilities]]
+id = "keychain.get"
+platforms = ["mobile"]
+
+[[capabilities]]
+id = "keychain.set"
+platforms = ["mobile"]
+
+[[capabilities]]
+id = "dialog.open"
+platforms = ["mobile"]
+
+[[capabilities]]
+id = "dialog.save"
+platforms = ["mobile"]

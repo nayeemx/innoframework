@@ -1,0 +1,35 @@
+# Showcase #2 — Innoframework Desktop Demo
+#
+# Demonstrates: Tauri 2 desktop build, file system capabilities,
+# auth guards, secret boundary, CSP presets.
+
+[project]
+name = "showcase2"
+version = "1.0.0"
+targets = ["desktop"]
+
+[data]
+backend = "sqlite-dev"
+
+[ai]
+provider = "none"
+
+[auth]
+method = "session"
+
+[build]
+signing-identity = "showcase2-dev-cert"
+
+[[capabilities]]
+id = "fs.read"
+platforms = ["desktop"]
+path_prefixes = ["data/"]
+
+[[capabilities]]
+id = "fs.write"
+platforms = ["desktop"]
+path_prefixes = ["data/", "logs/"]
+
+[[capabilities]]
+id = "notify.send"
+platforms = ["desktop"]
