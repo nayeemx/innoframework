@@ -9,16 +9,22 @@ pub mod agent;
 pub mod build_target;
 pub mod capability;
 pub mod error;
+pub mod injection;
 pub mod manifest;
 pub mod manifest_toml;
+pub mod provider;
+pub mod sanitizer;
 pub mod secret;
 pub mod storage;
 pub mod tool;
 pub mod validation;
 
 pub use error::{ErrorCode, InnoframeworkError};
+pub use injection::{screen_input, INJECTION_ERROR};
 pub use manifest::Manifest;
 pub use manifest_toml::parse_manifest;
+pub use provider::{substitute_template, MockModelProvider, ModelProvider};
+pub use sanitizer::{sanitize, SANITIZER_ERROR};
 pub use storage::{validate_storage_id, Storage, STORAGE_ERROR};
 pub use validation::Validate;
 

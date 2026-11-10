@@ -737,6 +737,15 @@ dependencies = [
 ]
 
 [[package]]
+name = "innoframework-agent"
+version = "0.1.0"
+dependencies = [
+ "innoframework-core",
+ "serde_json",
+ "tokio",
+]
+
+[[package]]
 name = "innoframework-cli"
 version = "0.1.0"
 dependencies = [
