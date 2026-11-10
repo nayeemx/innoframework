@@ -8,11 +8,11 @@ Status: **in progress**. Core scaffold + TR-4.1 catalog semantics, TR-4.2 token 
 - Motion tokens + `@media (prefers-reduced-motion: reduce)` override (TR-4.4). TR-4.5 rule checks: `MIN_CONTRAST_NORMAL=4.5`, `MIN_TOUCH_TARGET_PX=44`, Web/Windows normal/action text contrast checks (including danger on-danger) in `src/a11y.rs`; muted contrast is measured/reported separately.
 - `inno init` web template (CSP-safe): generates `assets/inno-ui.css` from `innoframework_ui::css` (theme vars + responsive/baseline styles, breakpoints 360/768/1280) and loads it via `asset!("/assets/inno-ui.css")` + `document::Stylesheet`. `inno build web` CSP header unchanged/compatible with external self-hosted styles.
 - Axe-core + Playwright snapshot **spike** (not run by Rust CI): `tools/ui-a11y-snapshots/` (3 breakpoint projects, axe WCAG 2.x A/AA critical/serious gate, screenshot baselines). Requires Node/pinned toolchain and a served fixture; see README for `inno init`/`inno build web`/`inno dev` fixture workflow.
-- Core ADR-16 foundation (separate from UI gate): `innoframework-core::storage` defines the `Storage` trait, `STORAGE_ERROR` (AUD-1600), storage id validation, and typed get/put helpers; concrete Firebase/Postgres/SQLite adapters remain P6.
+- Core ADR-16 foundation (separate from UI gate): `innoframework-core::storage` defines the `Storage` trait, `STORAGE_ERROR` (AUD-1600), storage id validation, and typed get/put helpers. New `crates/storage-local` crate provides a JSON file-backed `Storage` impl for local dev/tests (P6 adapter, feature-gated so core stays dependency-light). Concrete Firebase/Postgres/SQLite adapters remain deferred.
 
 ## Evidence (automated)
 - `cargo test -p innoframework-ui`: **39 tests passing** (8 unit in `a11y/css/tokens`, 8 `a11y_layout`, 17 `components`, 3 `css_contract`, 3 `tokens`).
-- `cargo test --workspace`: **127 tests passing** (workspace total at time of update).
+- `cargo test --workspace`: **129 tests passing** (workspace total at time of update).
 - `cargo clippy --workspace --all-targets -D warnings`: clean.
 - CI runs `cargo test --workspace` / clippy/fmt/deny/audit via `innoframework-ci`.
 
