@@ -53,7 +53,10 @@ pub fn parse_file(path: &Path) -> Result<Vec<DocItem>, Box<dyn std::error::Error
 }
 
 /// Extract a documentation item from a syn item.
-fn extract_item(item: &syn::Item, path: &Path) -> Result<Option<DocItem>, Box<dyn std::error::Error>> {
+fn extract_item(
+    item: &syn::Item,
+    path: &Path,
+) -> Result<Option<DocItem>, Box<dyn std::error::Error>> {
     let (doc, name, signature, kind) = match item {
         syn::Item::Struct(s) => {
             let doc = extract_doc_comments(&s.attrs);
@@ -114,7 +117,11 @@ fn extract_doc_comments(attrs: &[syn::Attribute]) -> String {
     for attr in attrs {
         if attr.path().is_ident("doc") {
             if let syn::Meta::NameValue(nv) = &attr.meta {
-                if let syn::Expr::Lit(syn::ExprLit { lit: syn::Lit::Str(s), .. }) = &nv.value {
+                if let syn::Expr::Lit(syn::ExprLit {
+                    lit: syn::Lit::Str(s),
+                    ..
+                }) = &nv.value
+                {
                     docs.push(s.value());
                 }
             }
@@ -176,7 +183,10 @@ pub fn generate_docs(root: &Path) -> Result<DocOutput, Box<dyn std::error::Error
         .filter(|e| e.path().extension().is_some_and(|ext| ext == "rs"))
     {
         let path = entry.path();
-        if path.file_name().map_or(true, |n| n != "lib.rs" && n != "main.rs") {
+        if path
+            .file_name()
+            .map_or(true, |n| n != "lib.rs" && n != "main.rs")
+        {
             continue;
         }
 

@@ -170,7 +170,7 @@ fn build_desktop(manifest: &str) -> Result<(), InnoframeworkCliError> {
 
     // Generate Tauri project files from manifest capabilities.
     let root = std::path::Path::new(".");
-    crate::commands::tauri::write_tauri_project(
+    crate::commands::tauri::write_tauri_project_desktop(
         root,
         parsed.name(),
         parsed.version(),
@@ -204,10 +204,79 @@ fn build_desktop(manifest: &str) -> Result<(), InnoframeworkCliError> {
 }
 
 /// Build for the mobile target.
-fn build_mobile(_manifest: &str) -> Result<(), InnoframeworkCliError> {
-    println!("inno build mobile: checking signing identity...");
-    println!("Mobile build requires a signing identity (see inno.toml signing-identity).");
-    println!("Run `cargo tauri build --target <mobile-target>` to produce the mobile bundle.");
+fn build_mobile(manifest: &str) -> Result<(), InnoframeworkCliError> {
+    let parsed = parse_manifest(manifest).map_err(|e| {
+        InnoframeworkCliError::new(
+            crate::errors::CliErrorCode::BuildNoManifest,
+            format!("cannot parse inno.toml: {e}"),
+            "fix the manifest format and re-run `inno build mobile`",
+            None,
+        )
+    })?;
+
+    // Mobile requires at least the mobile target.
+    if !parsed
+        .targets()
+        .contains(&innoframework_core::build_target::TargetKind::Mobile)
+    {
+        return Err(InnoframeworkCliError::build_mobile_no_target());
+    }
+
+    // Mobile requires a signing identity (ADR-09 deferred: build produces an
+    // unsigned bundle but must declare a signing identity).
+    let signing_identity = parsed.signing_identity();
+    if signing_identity.is_none() {
+        return Err(InnoframeworkCliError::build_mobile_signing_required());
+    }
+
+    println!("inno build mobile: generating Tauri 2 mobile project files...");
+
+    // Determine mobile target from manifest (default to Android).
+    let mobile_target = match parsed.mobile_target() {
+        Some("ios") | Some("IOS") => crate::commands::tauri::MobileTarget::IOS,
+        _ => crate::commands::tauri::MobileTarget::Android,
+    };
+
+    // Generate Tauri mobile project files from manifest capabilities.
+    let root = std::path::Path::new(".");
+    crate::commands::tauri::write_tauri_project_mobile(
+        root,
+        parsed.name(),
+        parsed.version(),
+        parsed.capabilities(),
+        &generate_csp_header(),
+        mobile_target,
+    )?;
+
+    // Verify cargo tauri is available.
+    let status = std::process::Command::new("cargo")
+        .args(["tauri", "--version"])
+        .output()
+        .map_err(|_| InnoframeworkCliError::build_tauri_not_found())?;
+    if !status.status.success() {
+        return Err(InnoframeworkCliError::build_tauri_not_found());
+    }
+
+    // Run `cargo tauri build` for the mobile target.
+    println!(
+        "inno build mobile: running `cargo tauri build` for {}...",
+        mobile_target.as_str()
+    );
+    let status = std::process::Command::new("cargo")
+        .args(["tauri", "build", "--target", mobile_target.bundle_target()])
+        .status()
+        .map_err(|_| InnoframeworkCliError::build_tauri_not_found())?;
+    if !status.success() {
+        return Err(InnoframeworkCliError::build_tauri_build_failed());
+    }
+
+    println!(
+        "inno build mobile: {} bundle produced by Tauri 2.",
+        mobile_target.as_str()
+    );
+    println!("  - tauri.conf.json and capability JSONs written to src-tauri/");
+    println!("  - Mobile target hint written to src-tauri/mobile/target.txt");
+    println!("  - Signing: deferred (ADR-09) — unsigned bundle, see docs for code-signing.");
     Ok(())
 }
 

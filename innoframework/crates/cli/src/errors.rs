@@ -32,6 +32,10 @@ pub enum CliErrorCode {
     BuildDesktopNoTarget = 3010,
     /// `cargo tauri build` failed.
     BuildTauriBuildFailed = 3011,
+    /// The manifest does not declare the mobile target.
+    BuildMobileNoTarget = 3012,
+    /// Mobile build requires a signing identity (ADR-09 deferred).
+    BuildMobileSigningRequired = 3013,
 }
 
 /// An actionable error: code, user message, fix sentence, doc link.
@@ -72,6 +76,8 @@ impl InnoframeworkCliError {
             CliErrorCode::BuildTauriNotFound => "AUD-3009",
             CliErrorCode::BuildDesktopNoTarget => "AUD-3010",
             CliErrorCode::BuildTauriBuildFailed => "AUD-3011",
+            CliErrorCode::BuildMobileNoTarget => "AUD-3012",
+            CliErrorCode::BuildMobileSigningRequired => "AUD-3013",
         };
         eprintln!("{code_str}: {}", self.message);
         eprintln!("  Fix: {}", self.fix);
@@ -186,8 +192,26 @@ impl InnoframeworkCliError {
         Self::new(
             CliErrorCode::BuildTauriBuildFailed,
             "`cargo tauri build` failed",
-            "fix the compile errors above, then re-run `inno build desktop`",
+            "fix the compile errors above, then re-run `inno build desktop` or `inno build mobile`",
             Some("https://innoframework.dev/docs/cli/build#desktop-build-failed"),
+        )
+    }
+
+    pub fn build_mobile_no_target() -> Self {
+        Self::new(
+            CliErrorCode::BuildMobileNoTarget,
+            "manifest does not declare the mobile target",
+            "add \"mobile\" to the targets list in inno.toml",
+            None,
+        )
+    }
+
+    pub fn build_mobile_signing_required() -> Self {
+        Self::new(
+            CliErrorCode::BuildMobileSigningRequired,
+            "mobile build requires a signing identity",
+            "set one with `inno config set signing-identity <id>` (signing deferred per ADR-09)",
+            Some("https://innoframework.dev/docs/cli/build#mobile-signing"),
         )
     }
 }

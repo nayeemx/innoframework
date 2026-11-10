@@ -33,6 +33,10 @@ struct RawProject {
     name: String,
     version: String,
     targets: Vec<String>,
+    #[serde(default)]
+    signing_identity: Option<String>,
+    #[serde(default)]
+    mobile_target: Option<String>,
 }
 
 #[derive(Debug, Deserialize)]
@@ -71,7 +75,14 @@ pub fn parse_manifest(source: &str) -> Result<Manifest, InnoframeworkError> {
         .map(parse_capability)
         .collect::<Result<Vec<_>, _>>()?;
 
-    let manifest = Manifest::new(raw.project.name, raw.project.version, targets, capabilities)?;
+    let manifest = Manifest::new(
+        raw.project.name,
+        raw.project.version,
+        targets,
+        capabilities,
+        raw.project.signing_identity,
+        raw.project.mobile_target,
+    )?;
     manifest.validate()?;
     Ok(manifest)
 }
@@ -79,6 +90,12 @@ pub fn parse_manifest(source: &str) -> Result<Manifest, InnoframeworkError> {
 fn scan_secrets(raw: &RawManifest) -> Result<(), InnoframeworkError> {
     secret::check_value("project.name", &raw.project.name)?;
     secret::check_value("project.version", &raw.project.version)?;
+    if let Some(s) = &raw.project.signing_identity {
+        secret::check_value("project.signing-identity", s)?;
+    }
+    if let Some(s) = &raw.project.mobile_target {
+        secret::check_value("project.mobile-target", s)?;
+    }
     for (i, t) in raw.project.targets.iter().enumerate() {
         secret::check_value(&format!("project.targets[{i}]"), t)?;
     }

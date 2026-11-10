@@ -37,6 +37,8 @@ pub struct Manifest {
     version: String,
     targets: Vec<TargetKind>,
     capabilities: Vec<Capability>,
+    signing_identity: Option<String>,
+    mobile_target: Option<String>,
 }
 
 impl Manifest {
@@ -46,12 +48,16 @@ impl Manifest {
         version: impl Into<String>,
         targets: Vec<TargetKind>,
         capabilities: Vec<Capability>,
+        signing_identity: Option<String>,
+        mobile_target: Option<String>,
     ) -> Result<Self, InnoframeworkError> {
         let m = Self {
             name: name.into(),
             version: version.into(),
             targets,
             capabilities,
+            signing_identity,
+            mobile_target,
         };
         m.validate()?;
         Ok(m)
@@ -70,6 +76,17 @@ impl Manifest {
 
     pub fn capabilities(&self) -> &[Capability] {
         &self.capabilities
+    }
+
+    /// Signing identity for mobile builds (ADR-09 deferred — build produces
+    /// unsigned bundles until a certificate/account exists).
+    pub fn signing_identity(&self) -> Option<&str> {
+        self.signing_identity.as_deref()
+    }
+
+    /// Preferred mobile target (Android or iOS).
+    pub fn mobile_target(&self) -> Option<&str> {
+        self.mobile_target.as_deref()
     }
 }
 
@@ -135,6 +152,8 @@ mod tests {
             "1.0.0",
             vec![TargetKind::Web],
             vec![fs_read_web()],
+            None,
+            None,
         )
         .unwrap();
         assert_eq!(m.name(), "my-app");
@@ -145,19 +164,21 @@ mod tests {
 
     #[test]
     fn empty_name_rejected() {
-        assert!(Manifest::new("", "1.0.0", vec![TargetKind::Web], vec![]).is_err());
+        assert!(Manifest::new("", "1.0.0", vec![TargetKind::Web], vec![], None, None).is_err());
     }
 
     #[test]
     fn uppercase_name_rejected() {
-        assert!(Manifest::new("MyApp", "1.0.0", vec![TargetKind::Web], vec![]).is_err());
+        assert!(
+            Manifest::new("MyApp", "1.0.0", vec![TargetKind::Web], vec![], None, None).is_err()
+        );
     }
 
     #[test]
     fn bad_version_rejected() {
         for bad in ["1.0", "1.0.0-beta", "v1.0.0", "", "1.0.x"] {
             assert!(
-                Manifest::new("app", bad, vec![TargetKind::Web], vec![]).is_err(),
+                Manifest::new("app", bad, vec![TargetKind::Web], vec![], None, None).is_err(),
                 "version {bad:?} should be rejected"
             );
         }
@@ -165,7 +186,7 @@ mod tests {
 
     #[test]
     fn no_targets_rejected() {
-        assert!(Manifest::new("app", "1.0.0", vec![], vec![]).is_err());
+        assert!(Manifest::new("app", "1.0.0", vec![], vec![], None, None).is_err());
     }
 
     #[test]
@@ -175,6 +196,8 @@ mod tests {
             "0.1.0",
             vec![TargetKind::Web, TargetKind::Desktop, TargetKind::Mobile],
             vec![],
+            None,
+            None,
         )
         .unwrap();
         assert_eq!(m.targets().len(), 3);
