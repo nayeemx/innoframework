@@ -1,0 +1,12 @@
+[package]
+name = "innoframework-storage-sqlite"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+rust-version.workspace = true
+
+[dependencies]
+innoframework-core = { path = "../core" }
+sqlx = { version = "0.8", features = ["sqlite", "runtime-tokio-rustls", "json"] }
+serde_json = { workspace = true }
+tokio = { workspace = true }
