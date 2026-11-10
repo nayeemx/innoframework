@@ -155,3 +155,76 @@ fn visual_snapshot_smoke_form_page() {
         assert!(html.contains(part), "snapshot missing: {part}\n{html}");
     }
 }
+
+#[test]
+fn textarea_is_labelled_and_required() {
+    fn app() -> Element {
+        rsx! { TextArea { id: "bio".to_string(), label: "Bio".to_string(), required: true } }
+    }
+    let html = render(app);
+    assert!(html.contains("for=\"bio\"") || html.contains("for='bio'"));
+    assert!(html.contains("aria-required=\"true\"") || html.contains("aria-required='true'"));
+    assert!(html.contains("Bio"));
+}
+
+#[test]
+fn checkbox_has_label_and_checked_state() {
+    fn app() -> Element {
+        rsx! { Checkbox { id: "agree".to_string(), label: "Agree".to_string(), checked: true } }
+    }
+    let html = render(app);
+    assert!(html.contains("type=\"checkbox\"") || html.contains("type='checkbox'"));
+    assert!(html.contains("for=\"agree\"") || html.contains("for='agree'"));
+    assert!(html.contains("checked"));
+    assert!(html.contains("Agree"));
+}
+
+#[test]
+fn select_renders_options_and_selected() {
+    fn app() -> Element {
+        rsx! { Select { id: "role".to_string(), label: "Role".to_string(), options: vec![("admin".into(), "Admin".into()), ("viewer".into(), "Viewer".into())], selected: "admin".to_string() } }
+    }
+    let html = render(app);
+    assert!(html.contains("Admin") && html.contains("Viewer"));
+    assert!(html.contains("value=\"admin\"") || html.contains("value='admin'"));
+}
+
+#[test]
+fn disabled_button_reports_aria_disabled() {
+    fn app() -> Element {
+        rsx! { Button { label: "Submit".to_string(), disabled: true, button_type: "submit".to_string() } }
+    }
+    let html = render(app);
+    assert!(html.contains("aria-disabled=\"true\"") || html.contains("aria-disabled='true'"));
+    assert!(html.contains("Submit"));
+}
+
+#[test]
+fn invalid_input_reports_aria_invalid() {
+    fn app() -> Element {
+        rsx! { Input { id: "pin".to_string(), label: "PIN".to_string(), invalid: true } }
+    }
+    let html = render(app);
+    assert!(html.contains("aria-invalid=\"true\"") || html.contains("aria-invalid='true'"));
+    assert!(html.contains("PIN"));
+}
+
+#[test]
+fn input_passes_autocomplete_through() {
+    fn app() -> Element {
+        rsx! { Input { id: "email".to_string(), label: "Email".to_string(), autocomplete: "email".to_string() } }
+    }
+    let html = render(app);
+    assert!(html.contains("autocomplete=\"email\"") || html.contains("autocomplete='email'"));
+}
+
+#[test]
+fn popover_exposes_expanded_and_controls() {
+    fn app() -> Element {
+        rsx! { Popover { id: "more".to_string(), trigger_label: "Options".to_string(), open: true, "Settings" } }
+    }
+    let html = render(app);
+    assert!(html.contains("aria-expanded=\"true\"") || html.contains("aria-expanded='true'"));
+    assert!(html.contains("aria-controls=\"more\"") || html.contains("aria-controls='more'"));
+    assert!(html.contains("Options"));
+}

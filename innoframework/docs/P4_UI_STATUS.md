@@ -11,8 +11,8 @@ Status: **in progress**. Core scaffold + TR-4.1 catalog semantics, TR-4.2 token 
 - Core ADR-16 foundation (separate from UI gate): `innoframework-core::storage` defines the `Storage` trait, `STORAGE_ERROR` (AUD-1600), storage id validation, and typed get/put helpers; concrete Firebase/Postgres/SQLite adapters remain P6.
 
 ## Evidence (automated)
-- `cargo test -p innoframework-ui`: **32 tests passing** (8 unit in `a11y/css/tokens`, 8 `a11y_layout`, 10 `components`, 3 `css_contract`, 3 `tokens`).
-- `cargo test --workspace`: **120 tests passing** (workspace total at time of update).
+- `cargo test -p innoframework-ui`: **39 tests passing** (8 unit in `a11y/css/tokens`, 8 `a11y_layout`, 17 `components`, 3 `css_contract`, 3 `tokens`).
+- `cargo test --workspace`: **127 tests passing** (workspace total at time of update).
 - `cargo clippy --workspace --all-targets -D warnings`: clean.
 - CI runs `cargo test --workspace` / clippy/fmt/deny/audit via `innoframework-ci`.
 
