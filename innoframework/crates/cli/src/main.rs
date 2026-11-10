@@ -33,6 +33,15 @@ enum Commands {
         #[arg(short, long, default_value = "8080")]
         port: u16,
     },
+    /// Generate documentation from source code.
+    Docs {
+        /// Source directory to scan (default: current directory)
+        #[arg(short, long, default_value = ".")]
+        source: String,
+        /// Output file (default: print to stdout)
+        #[arg(short, long)]
+        output: Option<String>,
+    },
     /// Build for a target: web, desktop, or mobile.
     Build {
         /// Target to build: web, desktop, mobile
@@ -50,6 +59,7 @@ fn main() {
             non_interactive,
         } => commands::init::run(name, non_interactive),
         Commands::Dev { port } => commands::dev::run(port),
+        Commands::Docs { source, output } => commands::docs::run(Some(source), output),
         Commands::Build { target } => commands::build::run(target),
     };
 

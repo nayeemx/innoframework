@@ -1,0 +1,27 @@
+# Showcase #1 — Innoframework Demo App
+#
+# Demonstrates: typed server functions, file-based routing, auth guards,
+# default-deny capabilities, secret boundary, CSP presets.
+
+[project]
+name = "showcase1"
+version = "0.1.0"
+targets = ["web"]
+
+[data]
+backend = "firebase-dev"
+
+[ai]
+provider = "none"
+
+[auth]
+method = "session"
+
+[[capabilities]]
+id = "fs.read"
+platforms = ["desktop"]
+path_prefixes = ["data/"]
+
+[[capabilities]]
+id = "notify.send"
+platforms = ["desktop"]

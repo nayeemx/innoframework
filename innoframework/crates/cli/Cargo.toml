@@ -16,3 +16,4 @@ clap.workspace = true
 thiserror.workspace = true
 innoframework-core = { path = "../core", version = "0.1.0" }
 innoframework-ui = { path = "../ui", version = "0.1.0" }
+innoframework-docs-gen = { path = "../docs-gen", version = "0.1.0" }
