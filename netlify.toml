@@ -8,6 +8,87 @@
   to = "/index.html"
   status = 200
 
+# Docs page redirects (clean URLs)
+[[redirects]]
+  from = "/docs"
+  to = "/docs.html"
+  status = 200
+
+[[redirects]]
+  from = "/docs/"
+  to = "/docs.html"
+  status = 200
+
+[[redirects]]
+  from = "/docs/getting-started"
+  to = "/docs/getting-started.html"
+  status = 200
+
+[[redirects]]
+  from = "/docs/getting-started/"
+  to = "/docs/getting-started.html"
+  status = 200
+
+[[redirects]]
+  from = "/docs/configuration"
+  to = "/docs/configuration.html"
+  status = 200
+
+[[redirects]]
+  from = "/docs/configuration/"
+  to = "/docs/configuration.html"
+  status = 200
+
+[[redirects]]
+  from = "/docs/cli-reference"
+  to = "/docs/cli-reference.html"
+  status = 200
+
+[[redirects]]
+  from = "/docs/cli-reference/"
+  to = "/docs/cli-reference.html"
+  status = 200
+
+[[redirects]]
+  from = "/docs/components"
+  to = "/docs/components.html"
+  status = 200
+
+[[redirects]]
+  from = "/docs/components/"
+  to = "/docs/components.html"
+  status = 200
+
+[[redirects]]
+  from = "/docs/security"
+  to = "/docs/security.html"
+  status = 200
+
+[[redirects]]
+  from = "/docs/security/"
+  to = "/docs/security.html"
+  status = 200
+
+[[redirects]]
+  from = "/docs/architecture"
+  to = "/docs/architecture.html"
+  status = 200
+
+[[redirects]]
+  from = "/docs/architecture/"
+  to = "/docs/architecture.html"
+  status = 200
+
+[[redirects]]
+  from = "/docs/showcases"
+  to = "/docs/showcases.html"
+  status = 200
+
+[[redirects]]
+  from = "/docs/showcases/"
+  to = "/docs/showcases.html"
+  status = 200
+
 [[headers]]
   for = "/*"
   [headers.values]

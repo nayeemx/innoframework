@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Documentation — Innoframework</title>
+  <meta name="description" content="Complete Innoframework documentation: getting started, configuration, CLI reference, security model, architecture, and component reference." />
+  <link rel="stylesheet" href="/assets/styles.css" />
+  <link rel="stylesheet" href="/assets/docs.css" />
+</head>
+<body>
+
+  <header class="site-header">
+    <div class="container">
+      <a href="/" class="brand">
+        <span class="brand__mark" aria-hidden="true">I</span>
+        <span>Innoframework</span>
+      </a>
+      <nav>
+        <ul class="nav" id="nav-list">
+          <li class="nav__item"><a href="/">Home</a></li>
+          <li class="nav__item"><a href="/docs/" class="nav__link--active">Documentation</a></li>
+        </ul>
+        <button class="nav__toggle" id="nav-toggle" aria-expanded="false" aria-controls="nav-list">
+          <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+            <path d="M3 12h18M3 6h18M3 18h18" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" />
+          </svg>
+        </button>
+      </nav>
+    </div>
+  </header>
+
+  <div class="docs-layout">
+    <aside class="docs-sidebar">
+      <div class="docs-sidebar__title">Documentation</div>
+      <ul class="docs-sidebar__nav">
+        <li class="docs-sidebar__item"><a href="/docs/" class="docs-sidebar__link docs-sidebar__link--active">Overview</a></li>
+        <li class="docs-sidebar__item"><a href="/docs/getting-started.html" class="docs-sidebar__link">Getting started</a></li>
+        <li class="docs-sidebar__item"><a href="/docs/configuration.html" class="docs-sidebar__link">Configuration (inno.toml)</a></li>
+        <li class="docs-sidebar__item"><a href="/docs/cli-reference.html" class="docs-sidebar__link">CLI reference</a></li>
+        <li class="docs-sidebar__item"><a href="/docs/components.html" class="docs-sidebar__link">Components</a></li>
+        <li class="docs-sidebar__item"><a href="/docs/security.html" class="docs-sidebar__link">Security model</a></li>
+        <li class="docs-sidebar__item"><a href="/docs/architecture.html" class="docs-sidebar__link">Architecture</a></li>
+        <li class="docs-sidebar__item"><a href="/docs/showcases.html" class="docs-sidebar__link">Showcases</a></li>
+      </ul>
+    </aside>
+
+    <main class="docs-content">
+      <a href="/" class="back-link">&larr; Back to homepage</a>
+
+      <div class="hero-section">
+        <span class="badge">Docs v1</span>
+        <span class="badge">Rust &bull; Dioxus 0.7</span>
+        <span class="badge">Default-deny security</span>
+        <h1>Documentation</h1>
+        <p>Complete reference for building secure web, desktop, and mobile applications with Innoframework. Everything you need — from installation to deployment — in one place.</p>
+      </div>
+
+      <h2>What&rsquo;s inside</h2>
+      <div class="feature-grid" style="margin-top: 24px;">
+        <article class="feature-card">
+          <h3 class="feature-card__title">Getting started</h3>
+          <p class="feature-card__desc">Install the CLI, scaffold your first app, run the dev server, and build for web, desktop, or mobile.</p>
+          <a href="/docs/getting-started.html" class="feature-card__link">Read guide &rarr;</a>
+        </article>
+        <article class="feature-card">
+          <h3 class="feature-card__title">Configuration</h3>
+          <p class="feature-card__desc">Full <code>inno.toml</code> manifest reference: targets, capabilities, auth, data backend, AI provider, and signing identity.</p>
+          <a href="/docs/configuration.html" class="feature-card__link">Read reference &rarr;</a>
+        </article>
+        <article class="feature-card">
+          <h3 class="feature-card__title">CLI reference</h3>
+          <p class="feature-card__desc">Every <code>inno</code> command with flags, examples, exit codes, and the full AUD error catalog.</p>
+          <a href="/docs/cli-reference.html" class="feature-card__link">Read reference &rarr;</a>
+        </article>
+        <article class="feature-card">
+          <h3 class="feature-card__title">Components</h3>
+          <p class="feature-card__desc">Dioxus 0.7 component library: Button, Input, Dialog, Tabs, Table, Form, and more — with SSR semantics and a11y.</p>
+          <a href="/docs/components.html" class="feature-card__link">Read reference &rarr;</a>
+        </article>
+        <article class="feature-card">
+          <h3 class="feature-card__title">Security model</h3>
+          <p class="feature-card__desc">Default-deny capabilities, secret boundary, CSP presets, fail-closed authZ, and prompt-injection screening.</p>
+          <a href="/docs/security.html" class="feature-card__link">Read guide &rarr;</a>
+        </article>
+        <article class="feature-card">
+          <h3 class="feature-card__title">Architecture</h3>
+          <p class="feature-card__desc">Rust core, Tauri 2 runtime, storage trait, ADR log, and design decisions behind Innoframework.</p>
+          <a href="/docs/architecture.html" class="feature-card__link">Read guide &rarr;</a>
+        </article>
+      </div>
+
+      <div class="callout">
+        <p><strong>Security first.</strong> Innoframework is default-deny: every platform API call must be declared in your manifest. Undeclared calls are denied at runtime. Build-time checks reject secrets embedded in manifests or config before they ever ship.</p>
+      </div>
+
+      <h2>Platforms</h2>
+      <table>
+        <thead>
+          <tr><th>Platform</th><th>Status</th><th>Build command</th><th>Notes</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Web (WASM)</strong></td>
+            <td><span class="method-get">Ready</span></td>
+            <td><code>inno build web</code></td>
+            <td>Compiles via <code>dx build --platform web --release</code>, emits CSP header.</td>
+          </tr>
+          <tr>
+            <td><strong>Desktop (Tauri 2)</strong></td>
+            <td><span class="method-get">Ready</span></td>
+            <td><code>inno build desktop</code></td>
+            <td>Generates Tauri project files, runs <code>cargo tauri build</code>. Unsigned (ADR-09 deferred).</td>
+          </tr>
+          <tr>
+            <td><strong>Mobile (Tauri 2)</strong></td>
+            <td><span class="method-get">Tooling</span></td>
+            <td><code>inno build mobile</code></td>
+            <td>Requires signing identity (AUD-3013). Store publishing deferred (ADR-13).</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h2>Next steps</h2>
+      <p>Start with <a href="/docs/getting-started.html">Getting started</a> to scaffold your first app, or read the <a href="/docs/cli-reference.html">CLI reference</a> for command details.</p>
+    </main>
+  </div>
+
+  <footer class="site-footer">
+    <div class="container">
+      <a href="/" class="site-footer__brand" aria-label="Innoframework home">Innoframework</a>
+      <ul class="site-footer__links">
+        <li><a href="/">Home</a></li>
+        <li><a href="/docs/">Documentation</a></li>
+        <li><a href="/docs/security.html">Security</a></li>
+        <li><a href="/docs/architecture.html">Architecture</a></li>
+      </ul>
+      <p class="site-footer__copy">&copy; 2026 Innoframework. Built with Rust.</p>
+    </div>
+  </footer>
+
+  <script>
+    (function () {
+      var toggle = document.getElementById('nav-toggle');
+      var list = document.getElementById('nav-list');
+      if (!toggle || !list) return;
+      toggle.addEventListener('click', function () {
+        var expanded = toggle.getAttribute('aria-expanded') === 'true';
+        toggle.setAttribute('aria-expanded', String(!expanded));
+        list.hidden = expanded;
+      });
+    })();
+  </script>
+</body>
+</html>

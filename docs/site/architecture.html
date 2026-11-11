@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Architecture — Innoframework documentation</title>
+  <meta name="description" content="Innoframework architecture: Rust core, Tauri 2 runtime, Dioxus 0.7 UI, storage trait, ADR log, crate layering, and design decisions." />
+  <link rel="stylesheet" href="/assets/styles.css" />
+  <link rel="stylesheet" href="/assets/docs.css" />
+</head>
+<body>
+
+  <header class="site-header">
+    <div class="container">
+      <a href="/" class="brand">
+        <span class="brand__mark" aria-hidden="true">I</span>
+        <span>Innoframework</span>
+      </a>
+      <nav>
+        <ul class="nav" id="nav-list">
+          <li class="nav__item"><a href="/">Home</a></li>
+          <li class="nav__item"><a href="/docs/">Documentation</a></li>
+        </ul>
+        <button class="nav__toggle" id="nav-toggle" aria-expanded="false" aria-controls="nav-list">
+          <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+            <path d="M3 12h18M3 6h18M3 18h18" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" />
+          </svg>
+        </button>
+      </nav>
+    </div>
+  </header>
+
+  <div class="docs-layout">
+    <aside class="docs-sidebar">
+      <div class="docs-sidebar__title">Architecture</div>
+      <ul class="docs-sidebar__nav">
+        <li class="docs-sidebar__item"><a href="#overview" class="docs-sidebar__link">Overview</a></li>
+        <li class="docs-sidebar__item"><a href="#layers" class="docs-sidebar__link">Crate layers</a></li>
+        <li class="docs-sidebar__item"><a href="#core" class="docs-sidebar__link">Core (L1)</a></li>
+        <li class="docs-sidebar__item"><a href="#rpc" class="docs-sidebar__link">RPC (L2)</a></li>
+        <li class="docs-sidebar__item"><a href="#cli" class="docs-sidebar__link">CLI (L3)</a></li>
+        <li class="docs-sidebar__item"><a href="#agent" class="docs-sidebar__link">Agent (L4)</a></li>
+        <li class="docs-sidebar__item"><a href="#ui" class="docs-sidebar__link">UI kit (L5)</a></li>
+        <li class="docs-sidebar__item"><a href="#storage" class="docs-sidebar__link">Storage adapters</a></li>
+        <li class="docs-sidebar__item"><a href="#adrs" class="docs-sidebar__link">ADR decisions</a></li>
+        <li class="docs-sidebar__item"><a href="#toolchain" class="docs-sidebar__link">Toolchain</a></li>
+      </ul>
+    </aside>
+
+    <main class="docs-content">
+      <a href="/docs/" class="back-link">&larr; Back to documentation</a>
+
+      <div class="hero-section">
+        <span class="badge">Architecture</span>
+        <span class="badge">Rust + Dioxus 0.7</span>
+        <span class="badge">Tauri 2</span>
+        <h1>Architecture</h1>
+        <p>Innoframework is a Rust-native framework with layered crates, default-deny security, and a single signed CLI. No Node.js required.</p>
+      </div>
+
+      <div class="toc">
+        <div class="toc__title">On this page</div>
+        <ul class="toc__list">
+          <li class="toc__item"><a href="#overview" class="toc__link">Overview</a></li>
+          <li class="toc__item"><a href="#layers" class="toc__link">Crate layers</a></li>
+          <li class="toc__item"><a href="#core" class="toc__link">Core (L1)</a></li>
+          <li class="toc__item"><a href="#rpc" class="toc__link">RPC (L2)</a></li>
+          <li class="docs-sidebar__item"><a href="#cli" class="toc__link">CLI (L3)</a></li>
+          <li class="toc__item"><a href="#agent" class="toc__link">Agent (L4)</a></li>
+          <li class="toc__item"><a href="#ui" class="toc__link">UI kit (L5)</a></li>
+          <li class="toc__item"><a href="#storage" class="toc__link">Storage adapters</a></li>
+          <li class="toc__item"><a href="#adrs" class="toc__link">ADR decisions</a></li>
+          <li class="toc__item"><a href="#toolchain" class="toc__link">Toolchain</a></li>
+        </ul>
+      </div>
+
+      <h2 id="overview">Overview</h2>
+      <p>Innoframework follows a layered crate architecture where each layer depends only on the layers below it. The core is dependency-light; adapters and providers are added behind feature gates.</p>
+      <table>
+        <thead>
+          <tr><th>Layer</th><th>Crate</th><th>Responsibility</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>L1</td><td><code>innoframework-core</code></td><td>Error model, validation, capability authZ, manifest parsing, secret boundary, storage trait, injection screening, output sanitizer, model provider trait</td></tr>
+          <tr><td>L2</td><td><code>innoframework-rpc</code></td><td>Typed RPC router, CSRF protection, <code>#[rpc(guard)]</code> proc-macro, error mapping (non-leaky AUD-2001..2008)</td></tr>
+          <tr><td>L2</td><td><code>innoframework-rpc-macro</code></td><td>Proc-macro for <code>#[rpc(guard = ...)]</code>, trybuild compile-fail tests (TR-1.3)</td></tr>
+          <tr><td>L3</td><td><code>innoframework-cli</code></td><td><code>inno init</code>/<code>dev</code>/<code>build</code>/<code>docs</code>, AUD-3001..3013 error codes, Tauri project generation</td></tr>
+          <tr><td>L4</td><td><code>innoframework-agent</code></td><td>Agent executor, allowlist tool registry, bounded step loop, injection screening, output sanitization</td></tr>
+          <tr><td>L5</td><td><code>innoframework-ui</code></td><td>Dioxus 0.7 component kit, tokens, themes, CSS, a11y rules, SSR semantics</td></tr>
+          <tr><td>P6</td><td><code>innoframework-storage-local</code></td><td>JSON file-backed storage adapter</td></tr>
+          <tr><td>P6</td><td><code>innoframework-storage-sqlite</code></td><td>sqlx-backed SQLite storage adapter</td></tr>
+          <tr><td>P6</td><td><code>innoframework-storage-postgres</code></td><td>sqlx-backed Postgres storage adapter (feature-gated)</td></tr>
+          <tr><td>P8</td><td><code>innoframework-docs-gen</code></td><td>Rust source documentation generator</td></tr>
+        </tbody>
+      </table>
+
+      <h2 id="core">Core (L1)</h2>
+      <p><code>innoframework-core</code> is the dependency-light foundation. It defines:</p>
+      <ul>
+        <li><strong>Error model</strong> — <code>InnoframeworkError</code> with stable AUD codes, user-facing messages (non-leaky), and optional internal details.</li>
+        <li><strong>Validation</strong> — <code>Validate</code> trait with manifest, storage ID, and build target validation.</li>
+        <li><strong>Capability authZ</strong> — Fail-checked authorization (TR-3.2).</li>
+        <li><strong>Manifest</strong> — <code>inno.toml</code> parsing with <code>deny_unknown_fields</code>, secret boundary scanning.</li>
+        <li><strong>Storage trait</strong> (ADR-16) — Boxed-future <code>Storage</code> trait, <code>STORAGE_ERROR</code> (AUD-1600), storage ID validation, typed get/put helpers.</li>
+        <li><strong>Injection screening</strong> — Prompt-injection pattern detection (AI-4..AI-9).</li>
+        <li><strong>Output sanitizer</strong> — HTML sanitization for model output (AI-9).</li>
+        <li><strong>Model provider</strong> — <code>ModelProvider</code> trait with mock implementation (TR-5.2).</li>
+      </ul>
+
+      <h2 id="rpc">RPC (L2)</h2>
+      <p><code>innoframework-rpc</code> provides typed RPC with fail-closed security:</p>
+      <ul>
+        <li><strong>Router</strong> — <code>HashMap</code> of route name to boxed-future <code>RpcRoute</code> trait objects.</li>
+        <li><strong>Guard macro</strong> — <code>#[rpc(guard = AdminGuard)]</code> enforces guard declaration at compile time.</li>
+        <li><strong>CSRF</strong> — <code>Sec-Fetch-Site</code> based protection; missing header fails safe.</li>
+        <li><strong>Error mapping</strong> — Non-leaky AUD-2001..2008 errors.</li>
+        <li><strong>Compile-fail tests</strong> — trybuild UI tests verify missing guards produce compile errors (TR-1.3).</li>
+      </ul>
+
+      <h2 id="cli">CLI (L3)</h2>
+      <p><code>innoframework-cli</code> is the single Rust binary:</p>
+      <ul>
+        <li><code>inno init</code> — Project scaffolding with manifest, Cargo.toml, main.rs, CSP-safe CSS.</li>
+        <li><code>inno dev</code> — Std-only static server with CSP + nosniff headers.</li>
+        <li><code>inno build web</code> — Real <code>dx build --platform web --release</code>, emits <code>csp-header.txt</code>.</li>
+        <li><code>inno build desktop</code> — Tauri 2 project generation + <code>cargo tauri build</code>.</li>
+        <li><code>inno build mobile</code> — Tauri 2 mobile build, requires signing identity.</li>
+        <li><code>inno docs</code> — Markdown documentation generator from Rust source.</li>
+      </ul>
+
+      <h2 id="agent">Agent (L4)</h2>
+      <p><code>innoframework-agent</code> provides bounded agent execution:</p>
+      <ul>
+        <li><strong>Executor</strong> — Step loop with <code>max_steps</code>, <code>timeout_ms</code>, <code>max_output_chars</code> limits.</li>
+        <li><strong>Tool registry</strong> — Allowlist-only; unknown tools rejected.</li>
+        <li><strong>Injection screening</strong> — Input screened before any model call.</li>
+        <li><strong>Output sanitization</strong> — HTML sanitized before returning to UI.</li>
+        <li><strong>Mock provider</strong> — Testable without external services.</li>
+      </ul>
+
+      <h2 id="ui">UI kit (L5)</h2>
+      <p><code>innoframework-ui</code> (Dioxus 0.7):</p>
+      <ul>
+        <li><strong>Tokens</strong> — Color, space, radius, type, focus, motion design tokens with CSS variable output.</li>
+        <li><strong>Themes</strong> — Web and Windows themes with CSS custom properties.</li>
+        <li><strong>CSS</strong> — Breakpoints (360/768/1280), focus-visible, reduced-motion, touch-target baselines.</li>
+        <li><strong>Components</strong> — 22 components: Button, Input, TextArea, Select, Checkbox, RadioGroup, Switch, Dialog, Popover, Tooltip, Tabs, Table, Form, Toast, Card, Badge, Heading, Text, Link, Divider, Stack, Container, Alert.</li>
+        <li><strong>Layout</strong> — AppShell, PageLayout, FormLayout.</li>
+        <li><strong>a11y</strong> — Contrast checks (4.5:1), touch targets (44px), SSR semantics.</li>
+      </ul>
+
+      <h2 id="storage">Storage adapters</h2>
+      <p>The <code>Storage</code> trait (ADR-16) is implemented by:</p>
+      <table>
+        <thead>
+          <tr><th>Adapter</th><th>Backend</th><th>Status</th><th>Notes</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><code>storage-local</code></td><td>JSON file</td><td>Done</td><td>Local dev and tests, no external service</td></tr>
+          <tr><td><code>storage-sqlite</code></td><td>SQLite (sqlx)</td><td>Done</td><td>In-memory or file-backed, testable offline</td></tr>
+          <tr><td><code>storage-postgres</code></td><td>Postgres (sqlx)</td><td>Feature-gated</td><td>Requires live DB for live tests</td></tr>
+          <tr><td>Firebase</td><td>Firebase</td><td>Deferred</td><td>ADR-10 dev storage, adapter TBD</td></tr>
+        </tbody>
+      </table>
+
+      <h2 id="adrs">ADR decisions</h2>
+      <p>Key Architecture Decision Records (full log in <code>docs/ADR_LOG.md</code>):</p>
+      <table>
+        <thead>
+          <tr><th>ADR</th><th>Decision</th><th>Status</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>ADR-01</td><td>Rust core</td><td>Accepted</td></tr>
+          <tr><td>ADR-02</td><td>Tauri 2 for desktop/mobile</td><td>Accepted</td></tr>
+          <tr><td>ADR-03</td><td>Dioxus 0.7 for UI</td><td>Accepted</td></tr>
+          <tr><td>ADR-04</td><td>Default-deny security</td><td>Accepted</td></tr>
+          <tr><td>ADR-05</td><td>Capabilities/traits</td><td>Accepted</td></tr>
+          <tr><td>ADR-06</td><td>Single signed Rust CLI (no Node)</td><td>Accepted</td></tr>
+          <tr><td>ADR-07</td><td>Local llama.cpp</td><td>Accepted</td></tr>
+          <tr><td>ADR-08</td><td>Netlify static docs</td><td>Accepted</td></tr>
+          <tr><td>ADR-09</td><td>Signing</td><td>Open — no cert/account yet</td></tr>
+          <tr><td>ADR-10</td><td>Firebase dev storage</td><td>Accepted (adapter deferred)</td></tr>
+          <tr><td>ADR-14</td><td>RPC codegen proc-macro</td><td>Accepted</td></tr>
+          <tr><td>ADR-16</td><td>Storage trait</td><td>Accepted</td></tr>
+        </tbody>
+      </table>
+
+      <h2 id="toolchain">Toolchain</h2>
+      <table>
+        <thead>
+          <tr><th>Tool</th><th>Version</th><th>Purpose</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Rust</td><td>1.97.1 stable</td><td>Primary language</td></tr>
+          <tr><td>Dioxus</td><td>0.7.10</td><td>UI framework</td></tr>
+          <tr><td>Tauri</td><td>2.11.4</td><td>Desktop/mobile runtime</td></tr>
+          <tr><td>dx (dioxus-cli)</td><td>0.7.10</td><td>Web build tool</td></tr>
+          <tr><td>sqlx</td><td>0.8</td><td>Database adapter</td></tr>
+          <tr><td>cargo-deny</td><td>Local</td><td>Supply-chain checking</td></tr>
+          <tr><td>cargo-audit</td><td>Local</td><td>Vulnerability scanning</td></tr>
+        </tbody>
+      </table>
+    </main>
+  </div>
+
+  <footer class="site-footer">
+    <div class="container">
+      <a href="/" class="site-footer__brand" aria-label="Innoframework home">Innoframework</a>
+      <ul class="site-footer__links">
+        <li><a href="/">Home</a></li>
+        <li><a href="/docs/">Documentation</a></li>
+        <li><a href="/docs/security.html">Security</a></li>
+      </ul>
+      <p class="site-footer__copy">&copy; 2026 Innoframework. Built with Rust.</p>
+    </div>
+  </footer>
+
+  <script>
+    (function () {
+      var toggle = document.getElementById('nav-toggle');
+      var list = document.getElementById('nav-list');
+      if (!toggle || !list) return;
+      toggle.addEventListener('click', function () {
+        var expanded = toggle.getAttribute('aria-expanded') === 'true';
+        toggle.setAttribute('aria-expanded', String(!expanded));
+        list.hidden = expanded;
+      });
+    })();
+  </script>
+</body>
+</html>

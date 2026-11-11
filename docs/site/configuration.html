@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Configuration — Innoframework documentation</title>
+  <meta name="description" content="Complete inno.toml manifest reference: project, targets, capabilities, auth, data, AI, build, and secret boundary rules." />
+  <link rel="stylesheet" href="/assets/styles.css" />
+  <link rel="stylesheet" href="/assets/docs.css" />
+</head>
+<body>
+
+  <header class="site-header">
+    <div class="container">
+      <a href="/" class="brand">
+        <span class="brand__mark" aria-hidden="true">I</span>
+        <span>Innoframework</span>
+      </a>
+      <nav>
+        <ul class="nav" id="nav-list">
+          <li class="nav__item"><a href="/">Home</a></li>
+          <li class="nav__item"><a href="/docs/">Documentation</a></li>
+        </ul>
+        <button class="nav__toggle" id="nav-toggle" aria-expanded="false" aria-controls="nav-list">
+          <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+            <path d="M3 12h18M3 6h18M3 18h18" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" />
+          </svg>
+        </button>
+      </nav>
+    </div>
+  </header>
+
+  <div class="docs-layout">
+    <aside class="docs-sidebar">
+      <div class="docs-sidebar__title">Configuration</div>
+      <ul class="docs-sidebar__nav">
+        <li class="docs-sidebar__item"><a href="#overview" class="docs-sidebar__link">Overview</a></li>
+        <li class="docs-sidebar__item"><a href="#full-example" class="docs-sidebar__link">Full example</a></li>
+        <li class="docs-sidebar__item"><a href="#project" class="docs-sidebar__link">[project]</a></li>
+        <li class="docs-sidebar__item"><a href="#targets" class="docs-sidebar__link">targets</a></li>
+        <li class="docs-sidebar__item"><a href="#capabilities" class="docs-sidebar__link">[[capabilities]]</a></li>
+        <li class="docs-sidebar__item"><a href="#auth" class="docs-sidebar__link">[auth]</a></li>
+        <li class="docs-sidebar__item"><a href="#data" class="docs-sidebar__link">[data]</a></li>
+        <li class="docs-sidebar__item"><a href="#ai" class="docs-sidebar__link">[ai]</a></li>
+        <li class="docs-sidebar__item"><a href="#build" class="docs-sidebar__link">[build]</a></li>
+        <li class="docs-sidebar__item"><a href="#secret-boundary" class="docs-sidebar__link">Secret boundary</a></li>
+        <li class="docs-sidebar__item"><a href="#validation" class="docs-sidebar__link">Validation rules</a></li>
+      </ul>
+    </aside>
+
+    <main class="docs-content">
+      <a href="/docs/" class="back-link">&larr; Back to documentation</a>
+
+      <div class="hero-section">
+        <span class="badge">Reference</span>
+        <span class="badge">inno.toml</span>
+        <h1>Configuration (inno.toml)</h1>
+        <p>The manifest is the single source of truth for a generated project: name, version, targets, capabilities, auth, data backend, AI provider, and build settings. Unknown fields are rejected (<code>deny_unknown_fields</code>).</p>
+      </div>
+
+      <div class="toc">
+        <div class="toc__title">On this page</div>
+        <ul class="toc__list">
+          <li class="toc__item"><a href="#overview" class="toc__link">Overview</a></li>
+          <li class="toc__item"><a href="#full-example" class="toc__link">Full example</a></li>
+          <li class="toc__item"><a href="#project" class="toc__link">[project]</a></li>
+          <li class="toc__item"><a href="#capabilities" class="toc__link">Capabilities</a></li>
+          <li class="toc__item"><a href="#auth" class="toc__link">Auth</a></li>
+          <li class="toc__item"><a href="#data" class="toc__link">Data</a></li>
+          <li class="toc__item"><a href="#ai" class="toc__link">AI</a></li>
+          <li class="toc__item"><a href="#build" class="toc__link">Build</a></li>
+          <li class="toc__item"><a href="#secret-boundary" class="toc__link">Secret boundary</a></li>
+          <li class="toc__item"><a href="#validation" class="toc__link">Validation rules</a></li>
+        </ul>
+      </div>
+
+      <h2 id="overview">Overview</h2>
+      <p>The <code>inno.toml</code> file is parsed with <code>deny_unknown_fields</code>, so any typo in a section or key produces a parse error (AUD-1210). All string values pass through the secret boundary check — credential-like values are rejected at parse time (AUD-1250).</p>
+
+      <h2 id="full-example">Full example</h2>
+      <pre><code class="language-toml">[project]
+name = "my-app"
+version = "1.0.0"
+targets = ["web", "desktop", "mobile"]
+signing-identity = "my-dev-cert"
+mobile-target = "android"
+
+[data]
+backend = "sqlite-dev"
+
+[ai]
+provider = "none"
+
+[auth]
+method = "session"
+
+[build]
+signing-identity = "my-dev-cert"
+mobile-target = "android"
+
+[[capabilities]]
+id = "fs.read"
+platforms = ["desktop"]
+path_prefixes = ["data/"]
+
+[[capabilities]]
+id = "fs.write"
+platforms = ["desktop"]
+path_prefixes = ["data/", "logs/"]
+
+[[capabilities]]
+id = "notify.send"
+platforms = ["desktop"]
+
+[[capabilities]]
+id = "keychain.get"
+platforms = ["mobile"]
+
+[[capabilities]]
+id = "keychain.set"
+platforms = ["mobile"]
+
+[[capabilities]]
+id = "dialog.open"
+platforms = ["mobile"]</code></pre>
+
+      <h2 id="project">[project]</h2>
+      <table>
+        <thead>
+          <tr><th>Key</th><th>Type</th><th>Required</th><th>Description</th><th>Example</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>name</code></td>
+            <td>string</td>
+            <td><span class="param-required">Yes</span></td>
+            <td>Project name. Lowercase ASCII, digits, and dashes only.</td>
+            <td><code>"my-app"</code></td>
+          </tr>
+          <tr>
+            <td><code>version</code></td>
+            <td>string</td>
+            <td><span class="param-required">Yes</span></td>
+            <td>Semver (X.Y.Z), no pre-release.</td>
+            <td><code>"1.0.0"</code></td>
+          </tr>
+          <tr>
+            <td><code>targets</code></td>
+            <td>array of strings</td>
+            <td><span class="param-required">Yes</span></td>
+            <td>Build targets: <code>web</code>, <code>desktop</code>, <code>mobile</code>. At least one required.</td>
+            <td><code>["web", "desktop"]</code></td>
+          </tr>
+          <tr>
+            <td><code>signing-identity</code></td>
+            <td>string</td>
+            <td><span class="param-optional">No</span></td>
+            <td>Signing identity for mobile builds (ADR-09 deferred — unsigned bundles only).</td>
+            <td><code>"my-dev-cert"</code></td>
+          </tr>
+          <tr>
+            <td><code>mobile-target</code></td>
+            <td>string</td>
+            <td><span class="param-optional">No</span></td>
+            <td>Preferred mobile target: <code>android</code> or <code>ios</code>.</td>
+            <td><code>"android"</code></td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h2 id="targets">targets</h2>
+      <p>Declares which platforms to build for. Each target maps to a Rust target triple and bundle format:</p>
+      <table>
+        <thead>
+          <tr><th>Target</th><th>Triple</th><th>Bundle format</th><th>Command</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><code>web</code></td><td><code>wasm32-unknown-unknown</code></td><td>WASM</td><td><code>inno build web</code></td></tr>
+          <tr><td><code>desktop</code></td><td><code>x86_64-pc-windows-msvc</code></td><td>MSI / DMG</td><td><code>inno build desktop</code></td></tr>
+          <tr><td><code>mobile</code></td><td><code>aarch64-linux-android</code> / <code>aarch64-apple-ios</code></td><td>AAB / IPA</td><td><code>inno build mobile</code></td></tr>
+        </tbody>
+      </table>
+      <div class="callout">
+        <p><strong>Mobile requires a signing identity.</strong> If <code>mobile</code> is in targets but <code>signing-identity</code> is not set, the build fails with AUD-3013.</p>
+      </div>
+
+      <h2 id="capabilities">[[capabilities]]</h2>
+      <p>Declares platform API access. Each capability is fail-closed: undeclared capabilities are not available at runtime.</p>
+      <table>
+        <thead>
+          <tr><th>Key</th><th>Type</th><th>Required</th><th>Description</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>id</code></td>
+            <td>string</td>
+            <td><span class="param-required">Yes</span></td>
+            <td>Capability identifier (see table below).</td>
+          </tr>
+          <tr>
+            <td><code>platforms</code></td>
+            <td>array of strings</td>
+            <td><span class="param-required">Yes</span></td>
+            <td>Platforms where this capability applies: <code>web</code>, <code>desktop</code>, <code>mobile</code>.</td>
+          </tr>
+          <tr>
+            <td><code>path_prefixes</code></td>
+            <td>array of strings</td>
+            <td><span class="param-optional">No</span></td>
+            <td>File-system path prefixes for <code>fs.read</code>/<code>fs.write</code> scope.</td>
+          </tr>
+        </tbody>
+      </table>
+      <table>
+        <thead>
+          <tr><th>Capability ID</th><th>Description</th><th>Platforms</th><th>Tauri permission</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><code>fs.read</code></td><td>Read files and directories</td><td>desktop, mobile</td><td><code>fs:read-file</code>, <code>fs:read-dir</code>, <code>fs:read-text-file</code>, <code>fs:copy-file</code></td></tr>
+          <tr><td><code>fs.write</code></td><td>Write, create, delete, rename files</td><td>desktop, mobile</td><td><code>fs:write-file</code>, <code>fs:create-dir</code>, <code>fs:delete-file</code>, <code>fs:rename-file</code></td></tr>
+          <tr><td><code>notify.send</code></td><td>Show desktop notifications</td><td>desktop</td><td><code>notification:show</code></td></tr>
+          <tr><td><code>keychain.get</code></td><td>Read credentials from keychain</td><td>mobile</td><td><code>keychain:get</code></td></tr>
+          <tr><td><code>keychain.set</code></td><td>Write credentials to keychain</td><td>mobile</td><td><code>keychain:set</code></td></tr>
+          <tr><td><code>dialog.open</code></td><td>Open file picker dialog</td><td>mobile</td><td><code>dialog:open</code></td></tr>
+          <tr><td><code>dialog.save</code></td><td>Show save file dialog</td><td>mobile</td><td><code>dialog:save</code></td></tr>
+          <tr><td><code>shell.execute</code></td><td>Execute shell commands</td><td>desktop</td><td><code>shell:execute</code></td></tr>
+        </tbody>
+      </table>
+      <div class="callout--warn">
+        <p><strong>Fail closed.</strong> Capabilities not declared in <code>[[capabilities]]</code> are not exposed. Web-only capabilities are excluded from desktop/mobile builds and vice versa.</p>
+      </div>
+
+      <h2 id="auth">[auth]</h2>
+      <table>
+        <thead>
+          <tr><th>Key</th><th>Type</th><th>Required</th><th>Description</th><th>Example</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>method</code></td>
+            <td>string</td>
+            <td><span class="param-optional">No</span></td>
+            <td>Authentication method.</td>
+            <td><code>"session"</code></td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h2 id="data">[data]</h2>
+      <table>
+        <thead>
+          <tr><th>Key</th><th>Type</th><th>Required</th><th>Description</th><th>Example</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>backend</code></td>
+            <td>string</td>
+            <td><span class="param-optional">No</span></td>
+            <td>Data backend for development.</td>
+            <td><code>"sqlite-dev"</code></td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h2 id="ai">[ai]</h2>
+      <table>
+        <thead>
+          <tr><th>Key</th><th>Type</th><th>Required</th><th>Description</th><th>Example</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>provider</code></td>
+            <td>string</td>
+            <td><span class="param-optional">No</span></td>
+            <td>AI model provider (P7 — mock only in v1).</td>
+            <td><code>"none"</code></td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h2 id="build">[build]</h2>
+      <table>
+        <thead>
+          <tr><th>Key</th><th>Type</th><th>Required</th><th>Description</th><th>Example</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>signing-identity</code></td>
+            <td>string</td>
+            <td><span class="param-optional">No</span></td>
+            <td>Signing identity for mobile/desktop bundles.</td>
+            <td><code>"my-dev-cert"</code></td>
+          </tr>
+          <tr>
+            <td><code>mobile-target</code></td>
+            <td>string</td>
+            <td><span class="param-optional">No</span></td>
+            <td>Mobile target: <code>android</code> or <code>ios</code>.</td>
+            <td><code>"android"</code></td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h2 id="secret-boundary">Secret boundary</h2>
+      <p>All manifest values are scanned for credential-like patterns before any build step runs. The following prefixes are rejected (AUD-3004):</p>
+      <table>
+        <thead>
+          <tr><th>Prefix</th><th>Meaning</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><code>AKIA</code></td><td>AWS access key ID</td></tr>
+          <tr><td><code>ASIA</code></td><td>AWS temporary access key ID</td></tr>
+          <tr><td><code>ghp_</code></td><td>GitHub personal access token</td></tr>
+          <tr><td><code>gho_</code></td><td>GitHub OAuth token</td></tr>
+          <tr><td><code>ghs_</code></td><td>GitHub server token</td></tr>
+          <tr><td><code>github_pat_</code></td><td>GitHub fine-grained token</td></tr>
+          <tr><td><code>sk_live_</code></td><td>Stripe live secret key</td></tr>
+          <tr><td><code>rk_live_</code></td><td>Stripe live restricted key</td></tr>
+          <tr><td><code>xoxb-</code></td><td>Slack bot token</td></tr>
+          <tr><td><code>xoxp-</code></td><td>Slack user token</td></tr>
+          <tr><td><code>sk-ant-</code></td><td>Anthropic API key</td></tr>
+          <tr><td><code>-----BEGIN </code></td><td>PEM private key block</td></tr>
+          <tr><td><code>eyJhbGciOi</code></td><td>JWT token</td></tr>
+        </tbody>
+      </table>
+      <div class="callout--danger">
+        <p><strong>Never put secrets in <code>inno.toml</code>.</strong> Use environment variables or a secret manager instead. The manifest is scanned at parse time and credential-like values cause a hard failure.</p>
+      </div>
+
+      <h2 id="validation">Validation rules</h2>
+      <ul>
+        <li><strong>Name:</strong> non-empty, lowercase ASCII letters/digits/dashes only.</li>
+        <li><strong>Version:</strong> exactly three dot-separated numeric components (X.Y.Z).</li>
+        <li><strong>Targets:</strong> at least one; each must be <code>web</code>, <code>desktop</code>, or <code>mobile</code>.</li>
+        <li><strong>Mobile:</strong> requires <code>signing-identity</code> to be set.</li>
+        <li><strong>Capabilities:</strong> each ID must be known; unknown IDs are rejected.</li>
+        <li><strong>Secret boundary:</strong> no credential-like prefixes in any value.</li>
+        <li><strong>Unknown fields:</strong> rejected with <code>deny_unknown_fields</code>.</li>
+      </ul>
+    </main>
+  </div>
+
+  <footer class="site-footer">
+    <div class="container">
+      <a href="/" class="site-footer__brand" aria-label="Innoframework home">Innoframework</a>
+      <ul class="site-footer__links">
+        <li><a href="/">Home</a></li>
+        <li><a href="/docs/">Documentation</a></li>
+        <li><a href="/docs/security.html">Security</a></li>
+        <li><a href="/docs/architecture.html">Architecture</a></li>
+      </ul>
+      <p class="site-footer__copy">&copy; 2026 Innoframework. Built with Rust.</p>
+    </div>
+  </footer>
+
+  <script>
+    (function () {
+      var toggle = document.getElementById('nav-toggle');
+      var list = document.getElementById('nav-list');
+      if (!toggle || !list) return;
+      toggle.addEventListener('click', function () {
+        var expanded = toggle.getAttribute('aria-expanded') === 'true';
+        toggle.setAttribute('aria-expanded', String(!expanded));
+        list.hidden = expanded;
+      });
+    })();
+  </script>
+</body>
+</html>

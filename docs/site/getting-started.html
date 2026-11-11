@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Getting started — Innoframework documentation</title>
+  <meta name="description" content="Install the Innoframework CLI, scaffold your first app, run the dev server, and build for web, desktop, or mobile." />
+  <link rel="stylesheet" href="/assets/styles.css" />
+  <link rel="stylesheet" href="/assets/docs.css" />
+</head>
+<body>
+
+  <header class="site-header">
+    <div class="container">
+      <a href="/" class="brand">
+        <span class="brand__mark" aria-hidden="true">I</span>
+        <span>Innoframework</span>
+      </a>
+      <nav>
+        <ul class="nav" id="nav-list">
+          <li class="nav__item"><a href="/">Home</a></li>
+          <li class="nav__item"><a href="/docs/">Documentation</a></li>
+        </ul>
+        <button class="nav__toggle" id="nav-toggle" aria-expanded="false" aria-controls="nav-list">
+          <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+            <path d="M3 12h18M3 6h18M3 18h18" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" />
+          </svg>
+        </button>
+      </nav>
+    </div>
+  </header>
+
+  <div class="docs-layout">
+    <aside class="docs-sidebar">
+      <div class="docs-sidebar__title">Getting started</div>
+      <ul class="docs-sidebar__nav">
+        <li class="docs-sidebar__item"><a href="#install" class="docs-sidebar__link">1. Install the CLI</a></li>
+        <li class="docs-sidebar__item"><a href="#scaffold" class="docs-sidebar__link">2. Scaffold your app</a></li>
+        <li class="docs-sidebar__item"><a href="#dev" class="docs-sidebar__link">3. Run the dev server</a></li>
+        <li class="docs-sidebar__item"><a href="#declare-caps" class="docs-sidebar__link">4. Declare capabilities</a></li>
+        <li class="docs-sidebar__item"><a href="#build" class="docs-sidebar__link">5. Build for production</a></li>
+        <li class="docs-sidebar__item"><a href="#next" class="docs-sidebar__link">Next steps</a></li>
+        <li class="docs-sidebar__item"><a href="#troubleshooting" class="docs-sidebar__link">Troubleshooting</a></li>
+      </ul>
+    </aside>
+
+    <main class="docs-content">
+      <a href="/docs/" class="back-link">&larr; Back to documentation</a>
+
+      <div class="hero-section">
+        <span class="badge">Guide</span>
+        <span class="badge">5 minutes</span>
+        <h1>Getting started</h1>
+        <p>Install the Innoframework CLI, scaffold your first Dioxus 0.7 app, and build it for web, desktop, or mobile — no Node.js required.</p>
+      </div>
+
+      <div class="toc">
+        <div class="toc__title">On this page</div>
+        <ul class="toc__list">
+          <li class="toc__item"><a href="#install" class="toc__link">Install the CLI</a></li>
+          <li class="toc__item"><a href="#scaffold" class="toc__link">Scaffold your app</a></li>
+          <li class="toc__item"><a href="#dev" class="toc__link">Run the dev server</a></li>
+          <li class="toc__item"><a href="#declare-caps" class="toc__link">Declare capabilities</a></li>
+          <li class="toc__item"><a href="#build" class="toc__link">Build for production</a></li>
+          <li class="toc__item"><a href="#troubleshooting" class="toc__link">Troubleshooting</a></li>
+        </ul>
+      </div>
+
+      <h2 id="install">1. Install the CLI</h2>
+      <p>Innoframework ships as a single Rust binary. Install it with <code>cargo install</code>:</p>
+      <pre><code class="language-sh">cargo install innoframework-cli</code></pre>
+      <p>Verify the installation:</p>
+      <pre><code class="language-sh">inno --version</code></pre>
+      <div class="callout">
+        <p><strong>Prerequisites.</strong> You need the Rust toolchain (1.80+) and, for web builds, the Dioxus CLI (<code>cargo install dioxus-cli --version 0.7.10</code>). For desktop/mobile builds, you also need <code>cargo tauri</code> (<code>cargo install tauri-cli --version 2.11.4</code>).</p>
+      </div>
+
+      <h2 id="scaffold">2. Scaffold your app</h2>
+      <p>Create a new project with <code>inno init</code>. The wizard prompts for a name and platform targets, or you can skip prompts with <code>-y</code>:</p>
+      <pre><code class="language-sh"># Interactive wizard
+inno init --name my-app
+
+# Or skip all prompts with defaults
+inno init --name my-app -y</code></pre>
+      <p>This creates:</p>
+      <ul>
+        <li><code>inno.toml</code> — project manifest (targets, capabilities, auth, data backend)</li>
+        <li><code>src/main.rs</code> — Dioxus 0.7 entry point</li>
+        <li><code>assets/inno-ui.css</code> — CSP-safe shared stylesheet</li>
+        <li><code>Cargo.toml</code> — Rust crate definition</li>
+      </div>
+      <p>Enter the app directory:</p>
+      <pre><code class="language-sh">cd my-app</code></pre>
+
+      <h2 id="dev">3. Run the dev server</h2>
+      <p>Start the development server with CSP and <code>X-Content-Type-Options: nosniff</code> headers on every response:</p>
+      <pre><code class="language-sh">inno dev --port 4173</code></pre>
+      <p>Open <code>http://127.0.0.1:4173</code> in your browser. The server serves from the Dioxus public directory and applies the CSP header automatically.</p>
+      <div class="callout">
+        <p><strong>Default port.</strong> If you omit <code>--port</code>, the server listens on <code>8080</code>.</p>
+      </div>
+
+      <h2 id="declare-caps">4. Declare capabilities</h2>
+      <p>Open <code>inno.toml</code> and list the platform APIs your app needs. Undeclared calls are denied at runtime (fail closed):</p>
+      <pre><code class="language-toml">[project]
+name = "my-app"
+version = "0.1.0"
+targets = ["web", "desktop"]
+
+[auth]
+method = "session"
+
+[[capabilities]]
+id = "fs.read"
+platforms = ["desktop"]
+path_prefixes = ["data/"]
+
+[[capabilities]]
+id = "notify.send"
+platforms = ["desktop"]
+
+[[capabilities]]
+id = "keychain.get"
+platforms = ["mobile"]</code></pre>
+      <p>Available capability IDs: <code>fs.read</code>, <code>fs.write</code>, <code>notify.send</code>, <code>keychain.get</code>, <code>keychain.set</code>, <code>dialog.open</code>, <code>dialog.save</code>, <code>shell.execute</code>.</p>
+
+      <h2 id="build">5. Build for production</h2>
+      <h3 id="build-web">Web</h3>
+      <p>Compiles to WASM with Dioxus 0.7 and emits a <code>csp-header.txt</code> beside the output:</p>
+      <pre><code class="language-sh">inno build web</code></pre>
+      <p>Output: <code>target/dx/&lt;app&gt;/release/web/public/</code> — serve with the CSP header.</p>
+      <h3 id="build-desktop">Desktop (Tauri 2)</h3>
+      <p>Generates Tauri project files from your manifest capabilities, then builds:</p>
+      <pre><code class="language-sh">inno build desktop</code></pre>
+      <h3 id="build-mobile">Mobile (Tauri 2)</h3>
+      <p>Requires a signing identity set in <code>inno.toml</code> (signing is deferred per ADR-09):</p>
+      <pre><code class="language-toml">[build]
+signing-identity = "my-dev-cert"
+mobile-target = "android"</code></pre>
+      <pre><code class="language-sh">inno build mobile</code></pre>
+
+      <h2 id="next">Next steps</h2>
+      <ul>
+        <li>Read the <a href="/docs/configuration.html">configuration reference</a> for all <code>inno.toml</code> options.</li>
+        <li>Read the <a href="/docs/cli-reference.html">CLI reference</a> for all commands and error codes.</li>
+        <li>Read the <a href="/docs/security.html">security model</a> to understand default-deny capabilities.</li>
+        <li>Browse the <a href="/docs/components.html">component library</a> for UI building blocks.</li>
+      </ul>
+
+      <h2 id="troubleshooting">Troubleshooting</h2>
+      <table>
+        <thead>
+          <tr><th>Problem</th><th>Cause</th><th>Fix</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>the `dx` tool was not found</code></td>
+            <td>Dioxus CLI not installed</td>
+            <td><code>cargo install dioxus-cli --version 0.7.10</code></td>
+          </tr>
+          <tr>
+            <td><code>the `cargo tauri` command was not found</code> (AUD-3009)</td>
+            <td>Tauri CLI not installed</td>
+            <td><code>cargo install tauri-cli --version 2.11.4</code></td>
+          </tr>
+          <tr>
+            <td><code>manifest does not declare the desktop target</code> (AUD-3010)</td>
+            <td><code>inno.toml</code> missing <code>desktop</code> in targets</td>
+            <td>Add <code>"desktop"</code> to the <code>targets</code> list</td>
+          </tr>
+          <tr>
+            <td><code>mobile build requires a signing identity</code> (AUD-3013)</td>
+            <td>No <code>signing-identity</code> in <code>[build]</code></td>
+            <td>Set <code>signing-identity</code> in <code>inno.toml</code></td>
+          </tr>
+          <tr>
+            <td><code>secret embedded in manifest</code> (AUD-3004)</td>
+            <td>Credential-like value in <code>inno.toml</code></td>
+            <td>Remove the secret; use environment variables instead</td>
+          </tr>
+        </tbody>
+      </table>
+    </main>
+  </div>
+
+  <footer class="site-footer">
+    <div class="container">
+      <a href="/" class="site-footer__brand" aria-label="Innoframework home">Innoframework</a>
+      <ul class="site-footer__links">
+        <li><a href="/">Home</a></li>
+        <li><a href="/docs/">Documentation</a></li>
+        <li><a href="/docs/security.html">Security</a></li>
+        <li><a href="/docs/architecture.html">Architecture</a></li>
+      </ul>
+      <p class="site-footer__copy">&copy; 2026 Innoframework. Built with Rust.</p>
+    </div>
+  </footer>
+
+  <script>
+    (function () {
+      var toggle = document.getElementById('nav-toggle');
+      var list = document.getElementById('nav-list');
+      if (!toggle || !list) return;
+      toggle.addEventListener('click', function () {
+        var expanded = toggle.getAttribute('aria-expanded') === 'true';
+        toggle.setAttribute('aria-expanded', String(!expanded));
+        list.hidden = expanded;
+      });
+    })();
+  </script>
+</body>
+</html>

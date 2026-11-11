@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Showcases — Innoframework documentation</title>
+  <meta name="description"content="Innoframework showcases: web, desktop, and mobile demo applications demonstrating framework capabilities." />
+  <link rel="stylesheet" href="/assets/styles.css" />
+  <link rel="stylesheet" href="/assets/docs.css" />
+</head>
+<body>
+
+  <header class="site-header">
+    <div class="container">
+      <a href="/" class="brand">
+        <span class="brand__mark" aria-hidden="true">I</span>
+        <span>Innoframework</span>
+      </a>
+      <nav>
+        <ul class="nav" id="nav-list">
+          <li class="nav__item"><a href="/">Home</a></li>
+          <li class="nav__item"><a href="/docs/">Documentation</a></li>
+        </ul>
+        <button class="nav__toggle" id="nav-toggle" aria-expanded="false" aria-controls="nav-list">
+          <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+            <path d="M3 12h18M3 6h18M3 18h18" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" />
+          </svg>
+        </button>
+      </nav>
+    </div>
+  </header>
+
+  <div class="docs-layout">
+    <aside class="docs-sidebar">
+      <div class="docs-sidebar__title">Showcases</div>
+      <ul class="docs-sidebar__nav">
+        <li class="docs-sidebar__item"><a href="#overview" class="docs-sidebar__link">Overview</a></li>
+        <li class="docs-sidebar__item"><a href="#showcase1" class="docs-sidebar__link">Showcase #1 — Web</a></li>
+        <li class="docs-sidebar__item"><a href="#showcase2" class="docs-sidebar__link">Showcase #2 — Desktop</a></li>
+        <li class="docs-sidebar__item"><a href="#showcase3" class="docs-sidebar__link">Showcase #3 — Mobile</a></li>
+      </ul>
+    </aside>
+
+    <main class="docs-content">
+      <a href="/docs/" class="back-link">&larr; Back to documentation</a>
+
+      <div class="hero-section">
+        <span class="badge">Showcases</span>
+        <span class="badge">3 apps</span>
+        <h1>Showcases</h1>
+        <p>Reference applications demonstrating Innoframework capabilities across web, desktop, and mobile platforms.</p>
+      </div>
+
+      <h2 id="overview">Overview</h2>
+      <p>Each showcase is a complete, buildable application with an <code>inno.toml</code> manifest, Cargo.toml, Dioxus 0.7 source, and CSP-safe stylesheet. They live in the <code>showcases/</code> directory of the repository.</p>
+
+      <h2 id="showcase1">Showcase #1 — Web</h2>
+      <div class="example-card">
+        <div class="example-card__header">showcases/showcase1/</div>
+        <div class="example-card__body">
+          <p><strong>Target:</strong> Web (WASM)</p>
+          <p><strong>Demonstrates:</strong> Typed server functions (<code>#[server]</code>), auth guards, default-deny security, CSP presets, file-based routing.</p>
+          <p><strong>Key files:</strong></p>
+          <ul>
+            <li><code>inno.toml</code> — manifest with <code>targets = ["web"]</code></li>
+            <li><code>Cargo.toml</code> — Dioxus 0.7 with <code>features = ["web"]</code></li>
+            <li><code>src/main.rs</code> — Dioxus app with <code>#[server]</code> typed server function</li>
+            <li><code>assets/inno-ui.css</code> — CSP-safe stylesheet</li>
+          </ul>
+          <p><strong>Build:</strong></p>
+          <pre><code class="language-sh">cd showcases/showcase1
+inno build web</code></pre>
+        </div>
+      </div>
+
+      <h2 id="showcase2">Showcase #2 — Desktop</h2>
+      <div class="example-card">
+        <div class="example-card__header">showcases/showcase2/</div>
+        <div class="example-card__body">
+          <p><strong>Target:</strong> Desktop (Tauri 2)</p>
+          <p><strong>Demonstrates:</strong> File system capabilities (<code>fs.read</code>, <code>fs.write</code>), notifications, auth guards, signing identity declaration.</p>
+          <p><strong>Key files:</strong></p>
+          <ul>
+            <li><code>inno.toml</code> — manifest with <code>targets = ["desktop"]</code>, <code>signing-identity</code>, fs capabilities with path prefixes</li>
+            <li><code>Cargo.toml</code> — Dioxus 0.7 with <code>features = ["desktop"]</code></li>
+            <li><code>src/main.rs</code> — Tauri desktop app with <code>LaunchBuilder::desktop()</code></li>
+            <li><code>assets/inno-ui.css</code> — desktop-optimized stylesheet</li>
+          </ul>
+          <p><strong>Build:</strong></p>
+          <pre><code class="language-sh">cd showcases/showcase2
+inno build desktop</code></pre>
+          <div class="callout--warn">
+            <p><strong>Signing deferred (ADR-09).</strong> Bundle is unsigned. Set <code>signing-identity</code> in <code>inno.toml</code> when a certificate is available.</p>
+          </div>
+        </div>
+      </div>
+
+      <h2 id="showcase3">Showcase #3 — Mobile</h2>
+      <div class="example-card">
+        <div class="example-card__header">showcases/showcase3/</div>
+        <div class="example-card__body">
+          <p><strong>Target:</strong> Mobile (Tauri 2, Android)</p>
+          <p><strong>Demonstrates:</strong> Mobile capabilities (<code>keychain.get</code>, <code>keychain.set</code>, <code>dialog.open</code>, <code>dialog.save</code>), signing identity, mobile target selection.</p>
+          <p><strong>Key files:</strong></p>
+          <ul>
+            <li><code>inno.toml</code> — manifest with <code>targets = ["mobile"]</code>, <code>mobile-target = "android"</code>, <code>signing-identity</code></li>
+            <li><code>Cargo.toml</code> — Dioxus 0.7 with <code>features = ["mobile"]</code></li>
+            <li><code>src/main.rs</code> — Tauri mobile app with <code>LaunchBuilder::mobile()</code></li>
+            <li><code>assets/inno-ui.css</code> — mobile-optimized stylesheet (touch targets, reduced-motion)</li>
+          </ul>
+          <p><strong>Build:</strong></p>
+          <pre><code class="language-sh">cd showcases/showcase3
+inno build mobile</code></pre>
+          <div class="callout--warn">
+            <p><strong>Signing required.</strong> Mobile builds fail with AUD-3013 unless <code>signing-identity</code> is set in <code>inno.toml</code>. Store publishing deferred (ADR-13).</p>
+          </div>
+        </div>
+      </div>
+
+      <h2>Showcase comparison</h2>
+      <table>
+        <thead>
+          <tr><th>Showcase</th><th>Platform</th><th>Targets</th><th>Key capabilities</th><th>Signing</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>#1 Web</td>
+            <td>Web</td>
+            <td><code>["web"]</code></td>
+            <td>—</td>
+            <td>Not required</td>
+          </tr>
+          <tr>
+            <td>#2 Desktop</td>
+            <td>Desktop</td>
+            <td><code>["desktop"]</code></td>
+            <td><code>fs.read</code>, <code>fs.write</code>, <code>notify.send</code></td>
+            <td>Declared (unsigned)</td>
+          </tr>
+          <tr>
+            <td>#3 Mobile</td>
+            <td>Mobile</td>
+            <td><code>["mobile"]</code></td>
+            <td><code>keychain.get</code>, <code>keychain.set</code>, <code>dialog.open</code>, <code>dialog.save</code></td>
+            <td>Declared (unsigned)</td>
+          </tr>
+        </tbody>
+      </table>
+    </main>
+  </div>
+
+  <footer class="site-footer">
+    <div class="container">
+      <a href="/" class="site-footer__brand" aria-label="Innoframework home">Innoframework</a>
+      <ul class="site-footer__links">
+        <li><a href="/">Home</a></li>
+        <li><a href="/docs/">Documentation</a></li>
+        <li><a href="/docs/security.html">Security</a></li>
+        <li><a href="/docs/architecture.html">Architecture</a></li>
+      </ul>
+      <p class="site-footer__copy">&copy; 2026 Innoframework. Built with Rust.</p>
+    </div>
+  </footer>
+
+  <script>
+    (function () {
+      var toggle = document.getElementById('nav-toggle');
+      var list = document.getElementById('nav-list');
+      if (!toggle || !list) return;
+      toggle.addEventListener('click', function () {
+        var expanded = toggle.getAttribute('aria-expanded') === 'true';
+        toggle.setAttribute('aria-expanded', String(!expanded));
+        list.hidden = expanded;
+      });
+    })();
+  </script>
+</body>
+</html>

@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Security model — Innoframework documentation</title>
+  <meta name="description" content="Innoframework security model: default-deny capabilities, secret boundary, CSP presets, auth guards, fail-closed authZ, CSRF protection, prompt-injection screening." />
+  <link rel="stylesheet" href="/assets/styles.css" />
+  <link rel="stylesheet" href="/assets/docs.css" />
+</head>
+<body>
+
+  <header class="site-header">
+    <div class="container">
+      <a href="/" class="brand">
+        <span class="brand__mark" aria-hidden="true">I</span>
+        <span>Innoframework</span>
+      </a>
+      <nav>
+        <ul class="nav" id="nav-list">
+          <li class="nav__item"><a href="/">Home</a></li>
+          <li class="nav__item"><a href="/docs/">Documentation</a></li>
+        </ul>
+        <button class="nav__toggle" id="nav-toggle" aria-expanded="false" aria-controls="nav-list">
+          <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+            <path d="M3 12h18M3 6h18M3 18h18" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" />
+          </svg>
+        </button>
+      </nav>
+    </div>
+  </header>
+
+  <div class="docs-layout">
+    <aside class="docs-sidebar">
+      <div class="docs-sidebar__title">Security model</div>
+      <ul class="docs-sidebar__nav">
+        <li class="docs-sidebar__item"><a href="#overview" class="docs-sidebar__link">Overview</a></li>
+        <li class="docs-sidebar__item"><a href="#default-deny" class="docs-sidebar__link">Default-deny capabilities</a></li>
+        <li class="docs-sidebar__item"><a href="#secret-boundary" class="docs-sidebar__link">Secret boundary</a></li>
+        <li class="docs-sidebar__item"><a href="#csp" class="docs-sidebar__link">Content Security Policy</a></li>
+        <li class="docs-sidebar__item"><a href="#auth-guards" class="docs-sidebar__link">Auth guards</a></li>
+        <li class="docs-sidebar__item"><a href="#csrf" class="docs-sidebar__link">CSRF protection</a></li>
+        <li class="docs-sidebar__item"><a="#ai-security" class="docs-sidebar__link">AI agent security</a></li>
+        <li class="docs-sidebar__item"><a="#threat-model" class="docs-sidebar__link">Threat model</a></li>
+      </ul>
+    </aside>
+
+    <main class="docs-content">
+      <a href="/docs/" class="back-link">&larr; Back to documentation</a>
+
+      <div class="hero-section">
+        <span class="badge">Security</span>
+        <span class="badge">Default-deny</span>
+        <h1>Security model</h1>
+        <p>Innoframework is built on a default-deny security posture: nothing runs unless explicitly permitted, secrets never ship in manifests, and errors never leak internals.</p>
+      </div>
+
+      <div class="toc">
+        <div class="toc__title">On this page</div>
+        <ul class="toc__list">
+          <li class="toc__item"><a href="#overview" class="toc__link">Overview</a></li>
+          <li class="toc__item"><a href="#default-deny" class="toc__link">Default-deny capabilities</a></li>
+          <li class="toc__item"><a href="#secret-boundary" class="toc__link">Secret boundary</a></li>
+          <li class="toc__item"><a href="#csp" class="toc__link">Content Security Policy</a></li>
+          <li class="toc__item"><a href="#auth-guards" class="toc__link">Auth guards</a></li>
+          <li class="toc__item"><a href="#csrf" class="toc__link">CSRF protection</a></li>
+          <li class="toc__item"><a href="#ai-security" class="toc__link">AI agent security</a></li>
+          <li class="toc__item"><a href="#threat-model" class="toc__link">Threat model</a></li>
+        </ul>
+      </div>
+
+      <h2 id="overview">Overview</h2>
+      <p>Security is not an add-on in Innoframework — it's the default. Every platform API call must be declared in your manifest. Undeclared calls are denied at runtime (fail closed). Build-time checks reject credentials embedded in manifests. All error messages are non-leaky.</p>
+      <div class="callout">
+        <p><strong>Core principles.</strong></p>
+        <ul>
+          <li><strong>Default-deny.</strong> Nothing runs unless explicitly permitted in <code>inno.toml</code>.</li>
+          <li><strong>Secret boundary.</strong> No credentials in manifests or config.</li>
+          <li><strong>Fail closed.</strong> Authentication/authorization failures deny access.</li>
+          <li><strong>Non-leaky errors.</strong> Error messages never reveal internal state or which check failed.</li>
+          <li><strong>CSP by default.</strong> Content-Security-Policy headers on every response.</li>
+        </ul>
+      </div>
+
+      <h2 id="default-deny">Default-deny capabilities</h2>
+      <p>Every platform API call must be declared in <code>inno.toml</code> under <code>[[capabilities]]</code>. The framework checks the manifest at build time and enforces at runtime:</p>
+      <table>
+        <thead>
+          <tr><th>Layer</th><th>Check</th><th>Behavior</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Build time</td><td>Manifest parsing</td><td>Unknown capability IDs rejected; secret values rejected</td></tr>
+          <tr><td>Build time</td><td>Tauri config generation</td><td>Only declared capabilities mapped to Tauri permissions</td></tr>
+          <tr><td>Runtime</td><td>Capability authZ</td><td>Undeclared API calls denied (fail closed)</td></tr>
+        </tbody>
+      </table>
+      <p>Example manifest:</p>
+      <pre><code class="language-toml">[[capabilities]]
+id = "fs.read"
+platforms = ["desktop"]
+path_prefixes = ["data/"]
+
+[[capabilities]]
+id = "notify.send"
+platforms = ["desktop"]</code></pre>
+      <div class="callout--danger">
+        <p><strong>Fail closed.</strong> If a capability is not declared, the corresponding Tauri permission is not generated and the API call is denied at runtime — even if the underlying platform supports it.</p>
+      </div>
+
+      <h2 id="secret-boundary">Secret boundary</h2>
+      <p>All manifest values are scanned for credential-like patterns before any build step runs. The following prefixes are rejected (AUD-3004 at the CLI, AUD-1250 at the core level):</p>
+      <table>
+        <thead>
+          <tr><th>Prefix</th><th>Meaning</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><code>AKIA</code> / <code>ASIA</code></td><td>AWS access keys</td></tr>
+          <tr><td><code>ghp_</code> / <code>gho_</code> / <code>ghs_</code> / <code>github_pat_</code></td><td>GitHub tokens</td></tr>
+          <tr><td><code>sk_live_</code> / <code>rk_live_</code></td><td>Stripe live keys</td></tr>
+          <tr><td><code>xoxb-</code> / <code>xoxp-</code></td><td>Slack tokens</td></tr>
+          <tr><td><code>sk-ant-</code></td><td>Anthropic API keys</td></tr>
+          <tr><td><code>-----BEGIN </code></td><td>PEM private key blocks</td></tr>
+          <tr><td><code>eyJhbGciOi</code></td><td>JWT tokens</td></tr>
+        </tbody>
+      </table>
+      <div class="callout--danger">
+        <p><strong>Never put secrets in <code>inno.toml</code>.</strong> Use environment variables or a secret manager. Credential-like values cause a hard parse failure.</p>
+      </div>
+
+      <h2 id="csp">Content Security Policy</h2>
+      <p>CSP headers are generated at build time and served with every response — default-deny by design:</p>
+      <pre><code class="language-http">Content-Security-Policy: default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'self'; frame-ancestors 'none'; base-uri 'self'; form-action 'self';</code></pre>
+      <p>Additional headers on every response:</p>
+      <ul>
+        <li><code>X-Content-Type-Options: nosniff</code></td>
+        <li><code>X-Frame-Options: DENY</code></li>
+        <li><code>Referrer-Policy: no-referrer</code></li>
+      </ul>
+      <div class="callout">
+        <p><strong>style-src allows <code>'unsafe-inline'</code></code> for framework/runtime style injection. Prefer external CSS (<code>assets/inno-ui.css</code>) loaded via <code>asset!()</code> + <code>document::Stylesheet</code>.</p>
+      </div>
+
+      <h2 id="auth-guards">Auth guards</h2>
+      <p>Routes and RPC endpoints are protected with declarative guards. The <code>#[rpc(guard = ...)]</code> proc-macro enforces that every RPC route declares a guard — missing guards are a compile error (TR-1.3, trybuild compile-fail tests):</p>
+      <pre><code class="language-rust">#[rpc(guard = AdminGuard)]
+async fn delete_user(id: String) -> Result<(), RpcError> { ... }</code></pre>
+      <table>
+        <thead>
+          <tr><th>Guard type</th><th>Behavior</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><code>AdminGuard</code></td><td>Requires admin role</td></tr>
+          <tr><td><code>UserGuard</code></td><td>Requires authenticated user</td></tr>
+          <tr><td><code>PublicGuard</code></td><td>No authentication required</td></tr>
+        </tbody>
+      </table>
+      <div class="callout">
+        <p><strong>Compile-time enforcement.</strong> <code>#[rpc]</code> without <code>guard =</code> produces error: <code>"rpc route must declare a guard: #[rpc(guard = AdminGuard)]"</code></p>
+      </div>
+
+      <h2 id="csrf">CSRF protection</h2>
+      <p>Cross-site request forgery is mitigated via the <code>Sec-Fetch-Site</code> header:</p>
+      <table>
+        <thead>
+          <tr><th><code>Sec-Fetch-Site</code></th><th>Behavior</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><code>same-origin</code> / <code>same-site</code></td><td>Request passes</td></tr>
+          <tr><td>Cross-site</td><td>Request denied (403)</td></tr>
+          <tr><td>Missing</td><td>Request denied (fail safe)</td></tr>
+        </tbody>
+      </table>
+
+      <h2 id="ai-security">AI agent security</h2>
+      <p>The P7 AI agent runtime includes multiple safety layers:</p>
+      <table>
+        <thead>
+          <tr><th>Layer</th><th>Mechanism</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Input screening</td><td>Prompt-injection patterns detected before any model call (instruction override, role override, prompt leak, jailbreak, safety bypass)</td></tr>
+          <tr><td>Output sanitization</td><td><code>&lt;script&gt;</code>, <code>&lt;iframe&gt;</code>, event handlers, and <code>javascript:</code> URLs removed; all HTML escaped</td></tr>
+          <tr><td>Tool allowlist</td><td>Only registered tools can be called; unknown tools rejected</td></tr>
+          <tr><td>Template substitution</td><td><code>{{placeholder}}</code> only — no raw user input in system prompts</td></tr>
+          <tr><td>Step limits</td><td><code>max_steps</code> enforced; unbounded loops prevented</td></tr>
+          <tr><td>Timeout</td><td><code>timeout_ms</code> per provider call</td></tr>
+          <tr><td>Output truncation</td><td><code>max_output_chars</code> on final output</td></tr>
+        </tbody>
+      </table>
+
+      <h2 id="threat-model">Threat model</h2>
+      <p>The full threat model is documented in <code>docs/THREAT_MODEL.md</code> with threats TM-1 through TM-10 covering: secret leakage, capability escalation, XSS via model output, prompt injection, CSRF, error information leakage, and supply-chain compromise.</p>
+    </main>
+  </div>
+
+  <footer class="site-footer">
+    <div class="container">
+      <a href="/" class="site-footer__brand" aria-label="Innoframework home">Innoframework</a>
+      <ul class="site-footer__links">
+        <li><a href="/">Home</a></li>
+        <li><a href="/docs/">Documentation</a></li>
+        <li><a href="/docs/architecture.html">Architecture</a></li>
+      </ul>
+      <p class="site-footer__copy">&copy; 2026 Innoframework. Built with Rust.</p>
+    </div>
+  </footer>
+
+  <script>
+    (function () {
+      var toggle = document.getElementById('nav-toggle');
+      var list = document.getElementById('nav-list');
+      if (!toggle || !list) return;
+      toggle.addEventListener('click', function () {
+        var expanded = toggle.getAttribute('aria-expanded') === 'true';
+        toggle.setAttribute('aria-expanded', String(!expanded));
+        list.hidden = expanded;
+      });
+    })();
+  </script>
+</body>
+</html>

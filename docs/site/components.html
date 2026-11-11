@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Components — Innoframework documentation</title>
+  <meta name="description" content="Innoframework component library reference: Button, Input, Dialog, Tabs, Table, Form, and more — Dioxus 0.7, SSR semantics, a11y." />
+  <link rel="stylesheet" href="/assets/styles.css" />
+  <link rel="stylesheet" href="/assets/docs.css" />
+</head>
+<body>
+
+  <header class="site-header">
+    <div class="container">
+      <a href="/" class="brand">
+        <span class="brand__mark" aria-hidden="true">I</span>
+        <span>Innoframework</span>
+      </a>
+      <nav>
+        <ul class="nav" id="nav-list">
+          <li class="nav__item"><a href="/">Home</a></li>
+          <li class="nav__item"><a href="/docs/">Documentation</a></li>
+        </ul>
+        <button class="nav__toggle" id="nav-toggle" aria-expanded="false" aria-controls="nav-list">
+          <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+            <path d="M3 12h18M3 6h18M3 18h18" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" />
+          </svg>
+        </button>
+      </nav>
+    </div>
+  </header>
+
+  <div class="docs-layout">
+    <aside class="docs-sidebar">
+      <div class="docs-sidebar__title">Components</div>
+      <ul class="docs-sidebar__nav">
+        <li class="docs-sidebar__item"><a href="#overview" class="docs-sidebar__link">Overview</a></li>
+        <li class="docs-sidebar__item"><a href="#buttons" class="docs-sidebar__link">Buttons</a></li>
+        <li class="docs-sidebar__item"><a href="#inputs" class="docs-sidebar__link">Inputs</a></li>
+        <li class="docs-sidebar__item"><a href="#selection" class="docs-sidebar__link">Selection</a></li>
+        <li class="docs-sidebar__item"><a="#dialogs" class="docs-sidebar__link">Dialogs &amp; popovers</a></li>
+        <li class="docs-sidebar__item"><a="#tabs" class="docs-sidebar__link">Tabs</a></li>
+        <li class="docs-sidebar__item"><a="#tables" class="docs-sidebar__link">Tables</a></li>
+        <li class="docs-sidebar__item"><a="#forms" class="docs-sidebar__link">Forms</a></li>
+        <li class="docs-sidebar__item"><a="#layout" class="docs-sidebar__link">Layout</a></li>
+        <li class="docs-sidebar__item"><a="#typography" class="docs-sidebar__link">Typography</a></li>
+        <li class="docs-sidebar__item"><a="#feedback" class="docs-sidebar__link">Feedback</a></li>
+      </ul>
+    </aside>
+
+    <main class="docs-content">
+      <a href="/docs/" class="back-link">&larr; Back to documentation</a>
+
+      <div class="hero-section">
+        <span class="badge">Reference</span>
+        <span class="badge">Dioxus 0.7</span>
+        <span class="badge">SSR + a11y</span>
+        <h1>Components</h1>
+        <p>The Innoframework UI kit (Dioxus 0.7) provides accessible, server-side-renderable components with focus-visible styling, 44px touch targets, and reduced-motion support.</p>
+      </div>
+
+      <div class="toc">
+        <div class="toc__title">On this page</div>
+        <ul class="toc__list">
+          <li class="toc__item"><a href="#overview" class="toc__link">Overview</a></li>
+          <li class="toc__item"><a href="#buttons" class="toc__link">Buttons</a></li>
+          <li class="toc__item"><a href="#inputs" class="toc__link">Inputs</a></li>
+          <li class="toc__item"><a href="#selection" class="toc__link">Selection</a></li>
+          <li class="toc__item"><a href="#dialogs" class="toc__link">Dialogs &amp; popovers</a></li>
+          <li class="toc__item"><a href="#tabs" class="toc__link">Tabs</a></li>
+          <li class="toc__item"><a href="#tables" class="toc__link">Tables</a></li>
+          <li class="toc__item"><a href="#forms" class="toc__link">Forms</a></li>
+          <li class="toc__item"><a href="#layout" class="toc__link">Layout</a></li>
+          <li class="toc__item"><a href="#typography" class="toc__link">Typography</a></li>
+          <li class="toc__item"><a href="#feedback" class="toc__link">Feedback</a></li>
+        </ul>
+      </div>
+
+      <h2 id="overview">Overview</h2>
+      <p>All components are Dioxus 0.7 components with SSR support via <code>dioxus-ssr</code>. They render semantic HTML with ARIA attributes and follow the design tokens (colors, spacing, motion) defined in <code>innoframework-ui::tokens</code>.</p>
+      <div class="callout">
+        <p><strong>Accessibility baseline.</strong> All components meet <code>MIN_CONTRAST_NORMAL=4.5</code>:1 contrast and <code>MIN_TOUCH_TARGET_PX=44</code> touch targets. <code>:focus-visible</code> rings are styled with <code>--inno-focus-ring</code>. <code>prefers-reduced-motion: reduce</code> disables animations.</p>
+      </div>
+
+      <h2 id="buttons">Buttons</h2>
+      <table>
+        <thead>
+          <tr><th>Component</th><th>Props</th><th>Accessibility</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>Button</code></td>
+            <td><code>label</code>, <code>disabled</code>, <code>button_type</code></td>
+            <td><code>aria-disabled</code> when disabled, native <code>&lt;button&gt;</code></td>
+          </tr>
+          <tr>
+            <td><code>Link</code></td>
+            <td><code>href</code>, <code>children</code></td>
+            <td>Native <code>&lt;a&gt;</code> with <code>href</code></td>
+          </tr>
+        </tbody>
+      </table>
+      <div class="example-card">
+        <div class="example-card__header">Button example</div>
+        <div class="example-card__body">
+<pre><code class="language-rust">Button {
+    label: "Submit".to_string(),
+    disabled: false,
+    button_type: "submit".to_string()
+}</code></pre>
+        </div>
+      </div>
+
+      <h2 id="inputs">Inputs</h2>
+      <table>
+        <thead>
+          <tr><th>Component</th><th>Props</th><th>Accessibility</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>Input</code></td>
+            <td><code>id</code>, <code>label</code>, <code>autocomplete</code>, <code>invalid</code></td>
+            <td><code>for</code> label association, <code>aria-invalid</code> when invalid, <code>autocomplete</code> passed through</td>
+          </tr>
+          <tr>
+            <td><code>TextArea</code></td>
+            <td><code>id</code>, <code>label</code>, <code>required</code></td>
+            <td><code>for</code> label association, <code>aria-required</code> when required</td>
+          </tr>
+          <tr>
+            <td><code>Select</code></td>
+            <td><code>id</code>, <code>label</code>, <code>options</code>, <code>selected</code></td>
+            <td>Native <code>&lt;select&gt;</code> with <code>for</code> label association</td>
+          </tr>
+        </tbody>
+      </table>
+      <div class="example-card">
+        <div class="example-card__header">Input with autocomplete</div>
+        <div class="example-card__body">
+<pre><code class="language-rust">Input {
+    id: "email".to_string(),
+    label: "Email".to_string(),
+    autocomplete: "email".to_string()
+}</code></pre>
+        </div>
+      </div>
+
+      <h2 id="selection">Selection</h2>
+      <table>
+        <thead>
+          <tr><th>Component</th><th>Props</th><th>Accessibility</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>Checkbox</code></td>
+            <td><code>id</code>, <code>label</code>, <code>checked</code></td>
+            <td><code>type="checkbox"</code>, <code>for</code> label association, <code>checked</code> state</td>
+          </tr>
+          <tr>
+            <td><code>RadioGroup</code></td>
+            <td><code>id</code>, <code>label</code>, <code>options</code>, <code>selected</code></td>
+            <td>Native <code>type="radio"</code> with shared <code>name</code></td>
+          </tr>
+          <tr>
+            <td><code>Switch</code></td>
+            <td><code>id</code>, <code>label</code>, <code>checked</code></td>
+            <td>Toggle switch with ARIA state</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h2 id="dialogs">Dialogs &amp; popovers</h2>
+      <table>
+        <thead>
+          <tr><th>Component</th><th>Props</th><th>Accessibility</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>Dialog</code></td>
+            <td><code>id</code>, <code>open</code>, children</td>
+            <td><code>hidden</code> + <code>aria-hidden</code> when closed, honors <code>open</code> state</td>
+          </tr>
+          <tr>
+            <td><code>Popover</code></td>
+            <td><code>id</code>, <code>trigger_label</code>, <code>open</code>, children</td>
+            <td><code>aria-expanded</code>, <code>aria-controls</code> linking trigger to content</td>
+          </tr>
+          <tr>
+            <td><code>Tooltip</code></td>
+            <td><code>id</code>, <code>label</code>, children</td>
+            <td>ARIA-describedby association</td>
+          </tr>
+        </tbody>
+      </table>
+      <div class="example-card">
+        <div class="example-card__header">Dialog example</div>
+        <div class="example-card__body">
+<pre><code class="language-rust">Dialog {
+    id: "confirm".to_string(),
+    open: true,
+    "Are you sure?"
+}</code></pre>
+        </div>
+      </div>
+
+      <h2 id="tabs">Tabs</h2>
+      <table>
+        <thead>
+          <tr><th>Component</th><th>Props</th><th>Accessibility</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>Tabs</code></td>
+            <td>Tab panels with labels</td>
+            <td>Tab/panel ARIA association, keyboard navigation</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h2 id="tables">Tables</h2>
+      <table>
+        <thead>
+          <tr><th>Component</th><th>Props</th><th>Accessibility</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>Table</code></td>
+            <td>Headers, rows, cells</td>
+            <td>Semantic <code>&lt;table&gt;</code>, <code>&lt;th&gt;</code> with scope</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h2 id="forms">Forms</h2>
+      <table>
+        <thead>
+          <tr><th>Component</th><th>Props</th><th>Accessibility</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>Form</code></td>
+            <td>Form fields, submit handler</td>
+            <td>Fieldset/label grouping, error association</td>
+          </tr>
+          <tr>
+            <td><code>Toast</code></td>
+            <td>Message, type (success/error/warn)</td>
+            <td>Live region for screen readers</td>
+          </tr>
+          <tr>
+            <td><code>Alert</code></td>
+            <td>Message, type (info/warn/error/success)</td>
+            <td>Role="alert" for critical messages</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h2 id="layout">Layout</h2>
+      <table>
+        <thead>
+          <tr><th>Component</th><th>Props</th><th>Description</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><code>AppShell</code></td><td>Skip link, banner, nav, main</td><td>Top-level shell with skip-to-content link and landmarks</td></tr>
+          <tr><td><code>PageLayout</code></td><td>Children</td><td>Standard page wrapper</td></tr>
+          <tr><td><code>FormLayout</code></td><td>Form fields</td><td>Form field grouping layout</td></tr>
+          <tr><td><code>Stack</code></td><td>Children, spacing</td><td>Vertical stack with gap</td></tr>
+          <tr><td><code>Container</code></td><td>Children</td><td>Constrained-width container</td></tr>
+          <tr><td><code>Card</code></td><td>Children</td><td>Elevated card with border and radius</td></tr>
+          <tr><td><code>Divider</code></td><td>None</td><td>Visual separator</td></tr>
+          <tr><td><code>Badge</code></td><td>Text, variant</td><td>Small status label</td></tr>
+        </tbody>
+      </table>
+
+      <h2 id="typography">Typography</h2>
+      <table>
+        <thead>
+          <tr><th>Component</th><th>Props</th><th>Description</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>Heading</code></td>
+            <td><code>level</code> (h1-h4), children</td>
+            <td>Real <code>h1</code>–<code>h4</code> elements (not divs)</td>
+          </tr>
+          <tr>
+            <td><code>Text</code></td>
+            <td>children</td>
+            <td>Body text</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h2 id="feedback">Feedback</h2>
+      <table>
+        <thead>
+          <tr><th>Component</th><th>Props</th><th>Description</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><code>Toast</code></td><td>message, type</td><td>Temporary notification</td></tr>
+          <tr><td><code>Alert</code></td><td>message, type</td><td>Inline alert (info/warn/error/success)</td></tr>
+        </tbody>
+      </table>
+    </main>
+  </div>
+
+  <footer class="site-footer">
+    <div class="container">
+      <a href="/" class="site-footer__brand" aria-label="Innoframework home">Innoframework</a>
+      <ul class="site-footer__links">
+        <li><a href="/">Home</a></li>
+        <li><a href="/docs/">Documentation</a></li>
+        <li><a href="/docs/security.html">Security</a></li>
+        <li><a href="/docs/architecture.html">Architecture</a></li>
+      </ul>
+      <p class="site-footer__copy">&copy; 2026 Innoframework. Built with Rust.</p>
+    </div>
+  </footer>
+
+  <script>
+    (function () {
+      var toggle = document.getElementById('nav-toggle');
+      var list = document.getElementById('nav-list');
+      if (!toggle || !list) return;
+      toggle.addEventListener('click', function () {
+        var expanded = toggle.getAttribute('aria-expanded') === 'true';
+        toggle.setAttribute('aria-expanded', String(!expanded));
+        list.hidden = expanded;
+      });
+    })();
+  </script>
+</body>
+</html>

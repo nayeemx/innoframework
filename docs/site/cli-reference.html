@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CLI reference — Innoframework documentation</title>
+  <meta name="description" content="Complete inno CLI reference: init, dev, build, docs commands with flags, examples, exit codes, and the full AUD error catalog." />
+  <link rel="stylesheet" href="/assets/styles.css" />
+  <link rel="stylesheet" href="/assets/docs.css" />
+</head>
+<body>
+
+  <header class="site-header">
+    <div class="container">
+      <a href="/" class="brand">
+        <span class="brand__mark" aria-hidden="true">I</span>
+        <span>Innoframework</span>
+      </a>
+      <nav>
+        <ul class="nav" id="nav-list">
+          <li class="nav__item"><a href="/">Home</a></li>
+          <li class="nav__item"><a href="/docs/">Documentation</a></li>
+        </ul>
+        <button class="nav__toggle" id="nav-toggle" aria-expanded="false" aria-controls="nav-list">
+          <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+            <path d="M3 12h18M3 6h18M3 18h18" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" />
+          </svg>
+        </button>
+      </nav>
+    </div>
+  </header>
+
+  <div class="docs-layout">
+    <aside class="docs-sidebar">
+      <div class="docs-sidebar__title">CLI reference</div>
+      <ul class="docs-sidebar__nav">
+        <li class="docs-sidebar__item"><a href="#overview" class="docs-sidebar__link">Overview</a></li>
+        <li class="docs-sidebar__item"><a href="#global-flags" class="docs-sidebar__link">Global flags</a></li>
+        <li class="docs-sidebar__item"><a href="#init" class="docs-sidebar__link">inno init</a></li>
+        <li class="docs-sidebar__item"><a href="#dev" class="docs-sidebar__link">inno dev</a></li>
+        <li class="docs-sidebar__item"><a href="#build" class="docs-sidebar__link">inno build</a></li>
+        <li class="docs-sidebar__item"><a href="#docs-cmd" class="docs-sidebar__link">inno docs</a></li>
+        <li class="docs-sidebar__item"><a href="#error-catalog" class="docs-sidebar__link">AUD error catalog</a></li>
+      </ul>
+    </aside>
+
+    <main class="docs-content">
+      <a href="/docs/" class="back-link">&larr; Back to documentation</a>
+
+      <div class="hero-section">
+        <span class="badge">Reference</span>
+        <span class="badge">inno CLI</span>
+        <h1>CLI reference</h1>
+        <p>The <code>inno</code> CLI is a single signed Rust binary. No Node.js required. Commands: <code>init</code>, <code>dev</code>, <code>build</code>, <code>docs</code>.</p>
+      </div>
+
+      <div class="toc">
+        <div class="toc__title">On this page</div>
+        <ul class="toc__list">
+          <li class="toc__item"><a href="#overview" class="toc__link">Overview</a></li>
+          <li class="toc__item"><a href="#init" class="toc__link">inno init</a></li>
+          <li class="toc__item"><a href="#dev" class="toc__link">inno dev</a></li>
+          <li class="toc__item"><a href="#build-web" class="toc__link">inno build web</a></li>
+          <li class="toc__item"><a href="#build-desktop" class="toc__link">inno build desktop</a></li>
+          <li class="toc__item"><a href="#build-mobile" class="toc__link">inno build mobile</a></li>
+          <li class="toc__item"><a href="#docs-cmd" class="toc__link">inno docs</a></li>
+          <li class="toc__item"><a href="#error-catalog" class="toc__link">AUD error catalog</a></li>
+        </ul>
+      </div>
+
+      <h2 id="overview">Overview</h2>
+      <p>Install:</p>
+      <pre><code class="language-sh">cargo install innoframework-cli</code></pre>
+      <p>Check version:</p>
+      <pre><code class="language-sh">inno --version</code></pre>
+
+      <h2 id="init">inno init</h2>
+      <p>Scaffold a new Innoframework project with a manifest, routing, and CSP-safe stylesheet.</p>
+      <pre><code class="language-sh">inno init --name my-app [-y]</code></pre>
+      <table>
+        <thead>
+          <tr><th>Flag</th><th>Type</th><th>Description</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><code>--name</code>, <code>-n</code></td><td>string</td><td>Project name (lowercase, ASCII, digits, dashes).</td></tr>
+          <tr><td><code>--yes</code>, <code>-y</code></td><td>flag</td><td>Skip interactive wizard, use defaults.</td></tr>
+        </tbody>
+      </table>
+      <p>Generates:</p>
+      <ul>
+        <li><code>inno.toml</code> — project manifest</li>
+        <li><code>Cargo.toml</code> — Rust crate with Dioxus 0.7</li>
+        <li><code>src/main.rs</code> — entry point with <code>asset!("/assets/inno-ui.css")</code> + <code>document::Stylesheet</code></li>
+        <li><code>assets/inno-ui.css</code> — shared stylesheet (breakpoints 360/768/1280, focus-visible, reduced-motion)</li>
+      </ul>
+      <div class="callout">
+        <p><strong>Web only.</strong> The generated manifest uses <code>dioxus = { version = "0.7", features = ["web"] }</code> with no <code>dioxus-router</code>. File-based routing is automatic.</p>
+      </div>
+
+      <h2 id="dev">inno dev</h2>
+      <p>Start the development server serving the Dioxus public directory with CSP + <code>nosniff</code> headers on every response.</p>
+      <pre><code class="language-sh">inno dev [--port PORT]</code></pre>
+      <table>
+        <thead>
+          <tr><th>Flag</th><th>Type</th><th>Default</th><th>Description</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><code>--port</code>, <code>-p</code></td><td>u16</td><td><code>8080</code></td><td>Port to listen on (127.0.0.1 only).</td></tr>
+        </tbody>
+      </table>
+      <div class="callout">
+        <p><strong>Headers.</strong> Every response includes <code>Content-Security-Policy</code> and <code>X-Content-Type-Options: nosniff</code>. Path traversal is rejected.</p>
+      </div>
+
+      <h2 id="build">inno build</h2>
+      <p>Build for a target platform.</p>
+      <pre><code class="language-sh">inno build &lt;target&gt;</code></pre>
+      <table>
+        <thead>
+          <tr><th>Target</th><th>Command</th><th>Description</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><code>web</code></td><td><code>inno build web</code></td><td>Real <code>dx build --platform web --release</code>, emits <code>csp-header.txt</code>.</td></tr>
+          <tr><td><code>desktop</code></td><td><code>inno build desktop</code></td><td>Generates Tauri project files + <code>cargo tauri build</code>.</td></tr>
+          <tr><td><code>mobile</code></td><td><code>inno build mobile</code></td><td>Requires signing identity (AUD-3013), runs <code>cargo tauri build --target</code>.</td></tr>
+        </tbody>
+      </table>
+
+      <h3 id="build-web">Build for web</h3>
+      <pre><code class="language-sh">inno build web</code></pre>
+      <p>Output: <code>target/dx/&lt;app&gt;/release/web/public/</code> with <code>index.html</code>, WASM bundle, and <code>csp-header.txt</code>.</p>
+
+      <h3 id="build-desktop">Build for desktop</h3>
+      <pre><code class="language-sh">inno build desktop</code></pre>
+      <p>Generates <code>src-tauri/tauri.conf.json</code> and capability JSONs from manifest capabilities, then runs <code>cargo tauri build</code>. Unsigned (ADR-09 deferred).</p>
+
+      <h3 id="build-mobile">Build for mobile</h3>
+      <pre><code class="language-sh">inno build mobile</code></pre>
+      <p>Requires <code>signing-identity</code> in <code>inno.toml</code>. Generates mobile-specific Tauri config and runs <code>cargo tauri build --target &lt;bundle-target&gt;</code>.</p>
+
+      <h2 id="docs-cmd">inno docs</h2>
+      <p>Generate markdown documentation from Rust source files using <code>syn</code> parsing.</p>
+      <pre><code class="language-sh">inno docs [--source DIR] [--output FILE]</code></pre>
+      <table>
+        <thead>
+          <tr><th>Flag</th><th>Type</th><th>Default</th><th>Description</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><code>--source</code>, <code>-s</code></td><td>string</td><td><code>.</code></td><td>Directory to scan for Rust source files.</td></tr>
+          <tr><td><code>--output</code>, <code>-o</code></td><td>string</td><td>stdout</td><td>Output file path (prints to stdout if omitted).</td></tr>
+        </tbody>
+      </table>
+
+      <h2 id="error-catalog">AUD error catalog</h2>
+      <p>All CLI errors carry a stable AUD code, a user-facing message (no secrets), a fix suggestion, and a doc link.</p>
+      <table>
+        <thead>
+          <tr><th>Code</th><th>Condition</th><th>Fix</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>AUD-3001</td><td>Init directory already exists</td><td>Choose a different name or remove the directory</td></tr>
+          <tr><td>AUD-3002</td><td>Invalid platform in init wizard</td><td>Choose web, desktop, or mobile</td></tr>
+          <tr><td>AUD-3003</td><td>No inno.toml manifest found</td><td>Run <code>inno init</code> first</td></tr>
+          <tr><td>AUD-3004</td><td>Secret embedded in manifest</td><td>Remove credential; use environment variables</td></tr>
+          <tr><td>AUD-3005</td><td>Dev port already in use</td><td>Choose a different port with <code>--port</code></td></tr>
+          <tr><td>AUD-3006</td><td>Unknown build target</td><td>Use web, desktop, or mobile</td></tr>
+          <tr><td>AUD-3007</td><td>Template file missing</td><td>Check file permissions and disk space</td></tr>
+          <tr><td>AUD-3008</td><td>Rust toolchain too old</td><td><code>rustup update</code></td></tr>
+          <tr><td>AUD-3009</td><td><code>cargo tauri</code> not found</td><td><code>cargo install tauri-cli --version 2.11.4</code></td></tr>
+          <tr><td>AUD-3010</td><td>Manifest lacks desktop target</td><td>Add <code>"desktop"</code> to targets</td></tr>
+          <tr><td>AUD-3011</td><td><code>cargo tauri build</code> failed</td><td>Fix compile errors, re-run</td></tr>
+          <tr><td>AUD-3012</td><td>Manifest lacks mobile target</td><td>Add <code>"mobile"</code> to targets</td></tr>
+          <tr><td>AUD-3013</td><td>Mobile build needs signing identity</td><td>Set <code>signing-identity</code> in <code>inno.toml</code></td></tr>
+        </tbody>
+      </table>
+    </main>
+  </div>
+
+  <footer class="site-footer">
+    <div class="container">
+      <a href="/" class="site-footer__brand" aria-label="Innoframework home">Innoframework</a>
+      <ul class="site-footer__links">
+        <li><a href="/">Home</a></li>
+        <li><a href="/docs/">Documentation</a></li>
+        <li><a href="/docs/security.html">Security</a></li>
+        <li><a href="/docs/architecture.html">Architecture</a></li>
+      </ul>
+      <p class="site-footer__copy">&copy; 2026 Innoframework. Built with Rust.</p>
+    </div>
+  </footer>
+
+  <script>
+    (function () {
+      var toggle = document.getElementById('nav-toggle');
+      var list = document.getElementById('nav-list');
+      if (!toggle || !list) return;
+      toggle.addEventListener('click', function () {
+        var expanded = toggle.getAttribute('aria-expanded') === 'true';
+        toggle.setAttribute('aria-expanded', String(!expanded));
+        list.hidden = expanded;
+      });
+    })();
+  </script>
+</body>
+</html>
