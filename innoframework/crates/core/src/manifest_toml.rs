@@ -34,8 +34,10 @@ struct RawProject {
     version: String,
     targets: Vec<String>,
     #[serde(default)]
+    #[serde(rename = "signing-identity")]
     signing_identity: Option<String>,
     #[serde(default)]
+    #[serde(rename = "mobile-target")]
     mobile_target: Option<String>,
 }
 

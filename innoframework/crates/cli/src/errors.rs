@@ -184,7 +184,7 @@ impl InnoframeworkCliError {
             CliErrorCode::BuildDesktopNoTarget,
             "manifest does not declare the desktop target",
             "add \"desktop\" to the targets list in inno.toml",
-            None,
+            Some("https://innoframework.dev/docs/cli/build#desktop-target"),
         )
     }
 
@@ -202,7 +202,7 @@ impl InnoframeworkCliError {
             CliErrorCode::BuildMobileNoTarget,
             "manifest does not declare the mobile target",
             "add \"mobile\" to the targets list in inno.toml",
-            None,
+            Some("https://innoframework.dev/docs/cli/build#mobile-target"),
         )
     }
 

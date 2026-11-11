@@ -1,7 +1,9 @@
 //! CLI unit/integration tests (TR-2.4 actionable errors, build/dev helpers, init renderers).
 
-use innoframework_cli::commands::{build, dev, init};
+use innoframework_cli::commands::{build, dev, docs, init, tauri};
 use innoframework_cli::errors::{CliErrorCode, InnoframeworkCliError};
+use innoframework_docs_gen::render_markdown;
+use std::fs;
 use std::io::{Read, Write};
 use std::net::{TcpListener, TcpStream};
 use std::path::Path;
@@ -184,4 +186,164 @@ fn dev_server_applies_csp_and_nosniff_headers() {
     assert!(resp.contains("200 OK"));
     assert!(resp.contains("Content-Security-Policy: default-src 'self'; script-src 'self'"));
     assert!(resp.contains("X-Content-Type-Options: nosniff"));
+}
+
+#[test]
+fn tr_2_4_error_catalog_new_codes_aud_3009_to_3013() {
+    let cases: Vec<(InnoframeworkCliError, &str)> = vec![
+        (InnoframeworkCliError::build_tauri_not_found(), "AUD-3009"),
+        (InnoframeworkCliError::build_desktop_no_target(), "AUD-3010"),
+        (
+            InnoframeworkCliError::build_tauri_build_failed(),
+            "AUD-3011",
+        ),
+        (InnoframeworkCliError::build_mobile_no_target(), "AUD-3012"),
+        (
+            InnoframeworkCliError::build_mobile_signing_required(),
+            "AUD-3013",
+        ),
+    ];
+    for (err, code) in cases {
+        assert!(!err.message.is_empty(), "{code} message");
+        assert!(!err.fix.is_empty(), "{code} fix");
+        assert!(err.doc_link.is_some(), "{code} doc link");
+    }
+    assert_eq!(CliErrorCode::BuildTauriNotFound as u16, 3009);
+    assert_eq!(CliErrorCode::BuildDesktopNoTarget as u16, 3010);
+    assert_eq!(CliErrorCode::BuildTauriBuildFailed as u16, 3011);
+    assert_eq!(CliErrorCode::BuildMobileNoTarget as u16, 3012);
+    assert_eq!(CliErrorCode::BuildMobileSigningRequired as u16, 3013);
+}
+
+#[test]
+fn tauri_mobile_target_triples_and_bundle_targets() {
+    assert_eq!(tauri::MobileTarget::Android.as_str(), "android");
+    assert_eq!(tauri::MobileTarget::IOS.as_str(), "ios");
+    assert_eq!(tauri::MobileTarget::Android.bundle_target(), "android-aab");
+    assert_eq!(tauri::MobileTarget::IOS.bundle_target(), "ios-ipa");
+    assert!(tauri::MobileTarget::Android
+        .triples()
+        .contains(&"aarch64-linux-android"));
+    assert!(tauri::MobileTarget::Android
+        .triples()
+        .contains(&"armv7-linux-androideabi"));
+    assert!(tauri::MobileTarget::Android
+        .triples()
+        .contains(&"x86_64-linux-android"));
+    assert!(tauri::MobileTarget::IOS
+        .triples()
+        .contains(&"aarch64-apple-ios"));
+    assert!(tauri::MobileTarget::IOS
+        .triples()
+        .contains(&"x86_64-apple-ios"));
+}
+
+#[test]
+fn tauri_mobile_conf_excludes_desktop_fields() {
+    let conf = tauri::generate_tauri_conf_mobile(
+        "my-app",
+        "1.0.0",
+        &[],
+        "default-src 'self'",
+        tauri::MobileTarget::Android,
+    );
+    let conf_str = serde_json::to_string(&conf).unwrap();
+    assert!(!conf_str.contains("\"windows\""));
+    assert!(!conf_str.contains("icon.icns"));
+    assert!(!conf_str.contains("icon.ico"));
+    assert!(conf_str.contains("com.innoframework.my-app"));
+    assert!(conf_str.contains("mobile"));
+}
+
+#[test]
+fn tauri_mobile_conf_includes_mobile_capabilities() {
+    use innoframework_core::capability::{Capability, Platform, Scope};
+    let cap = Capability::new("keychain.get", vec![Platform::Mobile], Scope::Unrestricted).unwrap();
+    let conf = tauri::generate_tauri_conf_mobile(
+        "my-app",
+        "1.0.0",
+        &[cap],
+        "default-src 'self'",
+        tauri::MobileTarget::Android,
+    );
+    let conf_str = serde_json::to_string(&conf).unwrap();
+    assert!(conf_str.contains("keychain-get"));
+    assert!(conf_str.contains("get"));
+}
+
+#[test]
+fn docs_generates_markdown_from_items() {
+    use innoframework_docs_gen::DocItem;
+    let items = vec![DocItem {
+        kind: innoframework_docs_gen::DocKind::Function,
+        name: "my_fn".to_string(),
+        doc: "Does something useful.".to_string(),
+        signature: "pub fn my_fn() -> Result<(), Error>\n".to_string(),
+        location: "src/lib.rs:10".to_string(),
+        children: vec![],
+    }];
+    let out = render_markdown(&items, "MyCrate");
+    assert!(out.contains("# MyCrate"));
+    assert!(out.contains("# my_fn"));
+    assert!(out.contains("Does something useful."));
+    assert!(out.contains("**Kind:** Function"));
+}
+
+#[test]
+fn docs_run_writes_to_output_file() {
+    let dir = temp_dir("docs-out");
+    let out_path = dir.join("output.md");
+    let result = docs::run(
+        Some(".".to_string()),
+        Some(out_path.to_str().unwrap().to_string()),
+    );
+    // Should succeed even if no lib.rs/main.rs found (produces empty module)
+    assert!(result.is_ok());
+    assert!(out_path.exists());
+    let content = fs::read_to_string(&out_path).unwrap();
+    assert!(content.contains("Generated by `inno docs`"));
+}
+
+#[test]
+fn docs_run_prints_to_stdout_when_no_output() {
+    let result = docs::run(Some(".".to_string()), None);
+    assert!(result.is_ok());
+}
+
+#[test]
+fn manifest_signing_identity_and_mobile_target_round_trip() {
+    let manifest_text = r#"[project]
+name = "demo-app"
+version = "1.0.0"
+targets = ["web", "desktop", "mobile"]
+signing-identity = "demo-dev-cert"
+mobile-target = "android"
+
+[[capabilities]]
+id = "fs.read"
+platforms = ["desktop"]
+"#;
+    let parsed = innoframework_core::manifest_toml::parse_manifest(manifest_text).unwrap();
+    assert_eq!(parsed.signing_identity(), Some("demo-dev-cert"));
+    assert_eq!(parsed.mobile_target(), Some("android"));
+    assert_eq!(
+        parsed.targets(),
+        &[
+            innoframework_core::build_target::TargetKind::Web,
+            innoframework_core::build_target::TargetKind::Desktop,
+            innoframework_core::build_target::TargetKind::Mobile,
+        ]
+    );
+}
+
+#[test]
+fn manifest_secret_boundary_scans_signing_identity() {
+    let manifest_text = r#"[project]
+name = "demo-app"
+version = "1.0.0"
+targets = ["mobile"]
+signing-identity = "ghp_abc123secret"
+"#;
+    let err = innoframework_core::manifest_toml::parse_manifest(manifest_text).unwrap_err();
+    assert_eq!(err.code(), innoframework_core::error::ErrorCode::new(1250));
 }
