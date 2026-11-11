@@ -19,7 +19,7 @@
       <nav>
         <ul class="nav" id="nav-list">
           <li class="nav__item"><a href="/">Home</a></li>
-          <li class="nav__item"><a href="/docs/">Documentation</a></li>
+          <li class="nav__item"><a href="/docs.html">Documentation</a></li>
         </ul>
         <button class="nav__toggle" id="nav-toggle" aria-expanded="false" aria-controls="nav-list">
           <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
@@ -170,7 +170,22 @@ inno build mobile</code></pre>
       toggle.addEventListener('click', function () {
         var expanded = toggle.getAttribute('aria-expanded') === 'true';
         toggle.setAttribute('aria-expanded', String(!expanded));
-        list.hidden = expanded;
+        if (!expanded) {
+          list.style.display = 'flex';
+          list.style.flexDirection = 'column';
+          list.style.background = '#ffffff';
+          list.style.position = 'absolute';
+          list.style.top = '100%';
+          list.style.left = '0';
+          list.style.right = '0';
+          list.style.padding = '16px';
+          list.style.border = '1px solid #d1d9e0';
+          list.style.borderTop = 'none';
+          list.style.borderRadius = '0 0 8px 8px';
+          list.style.zIndex = '50';
+        } else {
+          list.style.display = 'none';
+        }
       });
     })();
   </script>

@@ -626,3 +626,130 @@ body {
 .docs-content .back-link:focus-visible {
   color: #0969da;
 }
+
+/* Mobile responsive */
+@media (max-width: 767px) {
+  .container {
+    padding: 0 16px;
+  }
+
+  .hero {
+    padding: 48px 0 40px;
+  }
+
+  .hero__title {
+    font-size: 32px;
+    line-height: 1.2;
+  }
+
+  .hero__subtitle {
+    font-size: 17px;
+  }
+
+  .hero__actions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .hero__actions .btn {
+    justify-content: center;
+  }
+
+  .section {
+    padding: 48px 0;
+  }
+
+  .section__title {
+    font-size: 24px;
+  }
+
+  .feature-grid {
+    gap: 16px;
+  }
+
+  .feature-card {
+    padding: 20px;
+  }
+
+  .steps {
+    gap: 16px;
+  }
+
+  .step {
+    padding: 20px;
+  }
+
+  .platform-grid {
+    gap: 12px;
+  }
+
+  .platform-card {
+    padding: 14px;
+  }
+
+  .code-block {
+    padding: 12px;
+  }
+
+  .code-block pre {
+    font-size: 12px;
+  }
+
+  .docs-content {
+    padding: 24px 16px;
+  }
+
+  .docs-content h1 {
+    font-size: 28px;
+  }
+
+  .docs-content h2 {
+    font-size: 22px;
+    margin-top: 32px;
+  }
+
+  .docs-content h3 {
+    font-size: 18px;
+    margin-top: 20px;
+  }
+
+  .docs-content table {
+    font-size: 12px;
+  }
+
+  .docs-content th,
+  .docs-content td {
+    padding: 6px 10px;
+  }
+
+  .hero-section {
+    padding: 32px 20px;
+    margin-bottom: 24px;
+  }
+
+  .hero-section h1 {
+    font-size: 26px;
+  }
+
+  .callout {
+    padding: 14px 18px;
+    margin: 16px 0;
+  }
+
+  .example-card__body {
+    padding: 14px;
+  }
+
+  .example-card__body pre {
+    font-size: 12px;
+  }
+
+  .site-footer {
+    padding: 32px 0;
+  }
+
+  .site-footer__links {
+    gap: 16px;
+    flex-wrap: wrap;
+  }
+}

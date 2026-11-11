@@ -21,8 +21,8 @@
           <li class="nav__item"><a href="#platforms">Platforms</a></li>
           <li class="nav__item"><a href="#how-it-works">How it works</a></li>
           <li class="nav__item"><a href="#getting-started">Get started</a></li>
-          <li class="nav__item"><a href="/docs/">Documentation</a></li>
-        </ul>
+<li class="nav__item"><a href="/docs.html">Documentation</a></li>
+</ul>
         <button class="nav__toggle" id="nav-toggle" aria-expanded="false" aria-controls="nav-list">
           <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
             <path d="M3 12h18M3 6h18M3 18h18" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" />
@@ -193,7 +193,22 @@ inno build web</code></pre>
       toggle.addEventListener('click', function () {
         var expanded = toggle.getAttribute('aria-expanded') === 'true';
         toggle.setAttribute('aria-expanded', String(!expanded));
-        list.hidden = expanded;
+        if (!expanded) {
+          list.style.display = 'flex';
+          list.style.flexDirection = 'column';
+          list.style.background = '#ffffff';
+          list.style.position = 'absolute';
+          list.style.top = '100%';
+          list.style.left = '0';
+          list.style.right = '0';
+          list.style.padding = '16px';
+          list.style.border = '1px solid #d1d9e0';
+          list.style.borderTop = 'none';
+          list.style.borderRadius = '0 0 8px 8px';
+          list.style.zIndex = '50';
+        } else {
+          list.style.display = 'none';
+        }
       });
     })();
   </script>
